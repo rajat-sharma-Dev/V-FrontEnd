@@ -1,0 +1,544 @@
+.view-contracts {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.contracts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.contracts-header h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin: 0;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+}
+
+.status-filter {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.refresh-btn {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+  background-color: #e5e5e5;
+}
+
+.no-contracts {
+  text-align: center;
+  padding: 50px 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.contracts-container {
+  display: flex;
+  gap: 20px;
+}
+
+.contracts-list {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.contract-detail {
+  flex: 0 0 400px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-height: 80vh;
+  overflow-y: auto;
+  position: sticky;
+  top: 20px;
+}
+
+.contract-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.contract-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.contract-card.selected {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+.contract-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.contract-id {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.contract-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.status-active {
+  background-color: #e1f5fe;
+  color: #0288d1;
+}
+
+.status-completed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-disputed {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.status-cancelled {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+.contract-body {
+  margin-bottom: 15px;
+}
+
+.contract-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.contract-price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.contract-dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.contract-progress {
+  margin-top: 10px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #3498db;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.contract-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #777;
+}
+
+.detail-body {
+  padding: 15px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.detail-label {
+  flex: 0 0 40%;
+  font-weight: 600;
+  color: #555;
+}
+
+.detail-value {
+  flex: 1;
+  word-break: break-all;
+}
+
+.detail-section {
+  margin-top: 20px;
+}
+
+.detail-section h4 {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.conditions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.conditions-list li {
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  transition: background-color 0.2s;
+}
+
+.conditions-list li.completed {
+  background-color: rgba(46, 125, 50, 0.05);
+}
+
+.condition-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.condition-description {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.condition-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #777;
+}
+
+.completed .condition-status {
+  color: #2e7d32;
+}
+
+.dispute-info {
+  background-color: rgba(239, 83, 80, 0.05);
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.detail-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Buttons */
+.btn-approve, .btn-dispute, .btn-withdraw, .btn-vote {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-approve {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.btn-approve:hover {
+  background-color: #27ae60;
+}
+
+.btn-dispute {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-dispute:hover {
+  background-color: #c0392b;
+}
+
+.btn-withdraw {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-withdraw:hover {
+  background-color: #2980b9;
+}
+
+.btn-vote {
+  background-color: #9b59b6;
+  color: white;
+}
+
+.btn-vote:hover {
+  background-color: #8e44ad;
+}
+
+.completed-label, .disputed-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.completed-label {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.disputed-label {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 5px;
+}
+
+.pagination button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.pagination-ellipsis {
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 0 3px;
+  color: #666;
+  font-weight: bold;
+}
+
+/* Loading and error states */
+.loading, .error {
+  text-align: center;
+  padding: 50px 0;
+  color: #666;
+}
+
+.error {
+  color: #e74c3c;
+}
+
+/* Connection messages */
+.connection-message {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 20px 0;
+  border: 1px dashed #ddd;
+}
+
+.connection-message p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.connection-message .helper-text {
+  font-size: 14px;
+  color: #888;
+  font-style: italic;
+}
+
+.error-message {
+  background-color: #fff3f3;
+  border: 1px solid #ffdddd;
+  color: #d63031;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.error-message p {
+  margin-bottom: 15px;
+}
+
+.retry-btn {
+  background-color: #f7f7f7;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.retry-btn:hover {
+  background-color: #efefef;
+  border-color: #ccc;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 960px) {
+  .contracts-container {
+    flex-direction: column;
+  }
+  
+  .contract-detail {
+    flex: 1;
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .contracts-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .contracts-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .status-filter {
+    width: 100%;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+  }
+  
+  .detail-label {
+    margin-bottom: 5px;
+  }
+}
+
+/* Modal styling for ContractDetails */
+.contract-details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.modal-content {
+  position: relative;
+  z-index: 1001;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}

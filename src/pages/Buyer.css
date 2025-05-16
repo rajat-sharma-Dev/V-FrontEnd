@@ -1,0 +1,315 @@
+/* Buyer page styling */
+.buyer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Options grid */
+.buyer-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.option-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.option-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.option-icon {
+  font-size: 2.5em;
+  margin-bottom: 15px;
+}
+
+.option-card h3 {
+  margin: 10px 0;
+  color: white;
+}
+
+.option-card p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Section headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-right: 20px;
+  color: white;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Contract form */
+.contract-form {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 25px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: white;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.create-button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, #3a7bd5, #3a6073);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.create-button:hover {
+  background: linear-gradient(90deg, #4a8be5, #4a7083);
+}
+
+.create-button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+/* Contract cards */
+.contracts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.contract-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: transform 0.2s;
+}
+
+.contract-card:hover {
+  transform: translateY(-5px);
+}
+
+.contract-card h3 {
+  margin-top: 0;
+  color: white;
+}
+
+.contract-description {
+  margin-bottom: 15px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.contract-details {
+  margin-bottom: 20px;
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.contract-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.view-button {
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Contract filters */
+.contract-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-button {
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.filter-button.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-size: 0.9em;
+}
+
+.status-badge.active {
+  background-color: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+}
+
+.status-badge.completed {
+  background-color: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+}
+
+.status-badge.disputed {
+  background-color: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+}
+
+/* Contract card status borders */
+.contract-card.active {
+  border-left: 3px solid #2ecc71;
+}
+
+.contract-card.completed {
+  border-left: 3px solid #3498db;
+}
+
+.contract-card.disputed {
+  border-left: 3px solid #e74c3c;
+}
+
+/* Marketplace section */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.item-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px;
+  transition: transform 0.2s;
+}
+
+.item-card:hover {
+  transform: translateY(-5px);
+}
+
+.buy-button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(90deg, #3a7bd5, #3a6073);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 15px;
+}
+
+.buy-button:hover {
+  background: linear-gradient(90deg, #4a8be5, #4a7083);
+}
+
+.buy-button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 30px;
+  color: white;
+}
+
+/* Error messages */
+.error-message {
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  border-radius: 5px;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  color: #e74c3c;
+}
+
+/* Empty states */
+.empty-contracts, .placeholder-content {
+  text-align: center;
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}

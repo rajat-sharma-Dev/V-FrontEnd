@@ -1,0 +1,256 @@
+.vote-disputes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #333;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.back-button {
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: #f5f5f5;
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.dispute-info-section {
+  margin-bottom: 32px;
+}
+
+.info-card {
+  background: #f9f9fd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-card h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.voting-info {
+  padding-left: 20px;
+  color: #555;
+}
+
+.voting-info li {
+  margin-bottom: 8px;
+}
+
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.disputes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dispute-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.dispute-card:hover {
+  transform: translateY(-2px);
+}
+
+.dispute-header {
+  background: #f2f4f8;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.dispute-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.dispute-status {
+  background: #e74c3c;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dispute-details {
+  padding: 20px;
+}
+
+.dispute-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dispute-info p {
+  margin: 0;
+  color: #555;
+}
+
+.dispute-description {
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.dispute-description h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.dispute-description p {
+  margin: 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.voting-progress {
+  margin-bottom: 20px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #f1f1f1;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #3498db, #2980b9);
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.voting-actions {
+  margin-top: 20px;
+}
+
+.vote-options {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.vote-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vote-option.selected {
+  border-color: #3498db;
+  background: #ebf5fb;
+}
+
+.vote-option input {
+  margin-right: 10px;
+}
+
+.vote-submit-button {
+  width: 100%;
+  padding: 12px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.vote-submit-button:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.vote-submit-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.no-disputes {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .dispute-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .vote-options {
+    flex-direction: column;
+  }
+}

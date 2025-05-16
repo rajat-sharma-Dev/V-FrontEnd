@@ -1,0 +1,366 @@
+.contract-details {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  max-width: 800px;
+  margin: 0 auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+.details-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #777;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+.details-content {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.details-section, 
+.conditions-section, 
+.dispute-section {
+  margin-bottom: 25px;
+}
+
+.details-section {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+
+.detail-label {
+  flex: 0 0 40%;
+  font-weight: 600;
+  color: #555;
+}
+
+.detail-value {
+  flex: 1;
+  word-break: break-word;
+}
+
+.address-value {
+  font-family: monospace;
+  background-color: #f0f0f0;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-active {
+  background-color: #e8f4fd;
+  color: #1976d2;
+}
+
+.status-completed {
+  background-color: #e6f4ea;
+  color: #137333;
+}
+
+.status-disputed {
+  background-color: #fce8e6;
+  color: #c5221f;
+}
+
+.status-resolved_for_buyer, 
+.status-resolved_for_seller {
+  background-color: #fef7e0;
+  color: #ee8c00;
+}
+
+.conditions-section h3, 
+.dispute-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.conditions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.condition-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #fff;
+}
+
+.condition-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.condition-item.selected {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.condition-item.completed {
+  border-left: 4px solid #4caf50;
+}
+
+.condition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.condition-title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.condition-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.condition-status.completed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.condition-status.pending {
+  background-color: #f5f5f5;
+  color: #757575;
+}
+
+.condition-description {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.advance-payment-info {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #1976d2;
+  font-weight: 500;
+  background-color: #f0f7ff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.dispute-section {
+  background-color: #fff4f4;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #f44336;
+}
+
+.dispute-details {
+  background-color: white;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.contract-actions {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.action-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.action-info {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  font-style: italic;
+  color: #555;
+}
+
+.validator-vote-buttons {
+  justify-content: space-between;
+}
+
+.btn-primary, 
+.btn-danger, 
+.btn-success, 
+.btn-secondary {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background-color: #1976d2;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #1565c0;
+}
+
+.btn-danger {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #d32f2f;
+}
+
+.btn-success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #388e3c;
+}
+
+.btn-secondary {
+  background-color: #9e9e9e;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #757575;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dispute-form-container {
+  margin-top: 20px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.dispute-form-container h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.dispute-form .form-group {
+  margin-bottom: 15px;
+}
+
+.dispute-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.dispute-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.error-message {
+  margin-top: 15px;
+  padding: 12px 15px;
+  background-color: #fdecea;
+  color: #c5221f;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  border-left: 4px solid #f44336;
+}
+
+@media (max-width: 768px) {
+  .contract-details {
+    max-width: 100%;
+    border-radius: 0;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+  }
+  
+  .detail-label {
+    margin-bottom: 5px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+}

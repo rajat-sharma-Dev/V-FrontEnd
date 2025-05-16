@@ -1,0 +1,89 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "NotBuyer",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_seller",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_buyer",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_tokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "approvedByBuyer",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "approvedBySeller",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "advancePayment",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "lock",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ConfidentialEscrow.Condition[]",
+          "name": "_conditions",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "createContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}

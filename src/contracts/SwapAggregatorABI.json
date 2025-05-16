@@ -1,0 +1,323 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_aerodromeRouter", "type": "address" },
+      { "internalType": "address", "name": "_swapRouter", "type": "address" },
+      { "internalType": "address", "name": "_uniswapV2Router", "type": "address" },
+      { "internalType": "address", "name": "_uniswapV3Quoter", "type": "address" },
+      { "internalType": "address", "name": "_uniswapV4Quoter", "type": "address" },
+      { "internalType": "address", "name": "_aerodromeMixedQuoter", "type": "address" },
+      { "internalType": "address", "name": "_universalRouter", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAggregator__InvalidAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAggregator__InvalidArrayLengths",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAggregator__InvalidPoolFees",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAggregator__InvalidRecipient",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAggregator__InvalidTickSpacing",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAggregator__InvalidTokenAddresses",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAggregator__NotOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAggregator__PoolLocked",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tokenIn",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tokenOut",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum SwapAggregator.SwapProtocol",
+        "name": "protocol",
+        "type": "uint8"
+      }
+    ],
+    "name": "OptimalSwap",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tokenIn",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tokenOut",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "UniswapV4SwapExecuted",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_tokenIn", "type": "address" },
+      { "internalType": "address", "name": "_tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "_amountIn", "type": "uint256" },
+      { "internalType": "address", "name": "_recipient", "type": "address" }
+    ],
+    "name": "getAmountOutAerodrome",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountOut", "type": "uint256" },
+      { "internalType": "enum SwapAggregator.SwapProtocol", "name": "protocol", "type": "uint8" },
+      { "internalType": "int24", "name": "tickSpacing", "type": "int24" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenIn", "type": "address" },
+      { "internalType": "address", "name": "tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" }
+    ],
+    "name": "getAmountOutUniswapV2",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountOut", "type": "uint256" },
+      { "internalType": "enum SwapAggregator.SwapProtocol", "name": "protocol", "type": "uint8" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenIn", "type": "address" },
+      { "internalType": "address", "name": "tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "uint24[]", "name": "poolFees", "type": "uint24[]" }
+    ],
+    "name": "getAmountOutUniswapV3",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountOut", "type": "uint256" },
+      { "internalType": "uint24", "name": "poolFee", "type": "uint24" },
+      { "internalType": "enum SwapAggregator.SwapProtocol", "name": "protocol", "type": "uint8" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenIn", "type": "address" },
+      { "internalType": "address", "name": "tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "uint24", "name": "fee", "type": "uint24" }
+    ],
+    "name": "getAmountOutUniswapV3FromSpecificPool",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountOut", "type": "uint256" },
+      { "internalType": "enum SwapAggregator.SwapProtocol", "name": "protocol", "type": "uint8" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenIn", "type": "address" },
+      { "internalType": "address", "name": "tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "uint24[]", "name": "poolFees", "type": "uint24[]" },
+      { "internalType": "int24[]", "name": "tickSpacings", "type": "int24[]" },
+      { "internalType": "address[]", "name": "hooks", "type": "address[]" }
+    ],
+    "name": "getAmountOutUniswapV4",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountOut", "type": "uint256" },
+      { "internalType": "uint24", "name": "poolFee", "type": "uint24" },
+      { "internalType": "int24", "name": "tickSpacing", "type": "int24" },
+      { "internalType": "address", "name": "hook", "type": "address" },
+      { "internalType": "enum SwapAggregator.SwapProtocol", "name": "protocol", "type": "uint8" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenIn", "type": "address" },
+      { "internalType": "address", "name": "tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "uint24", "name": "fee", "type": "uint24" },
+      { "internalType": "int24", "name": "tickSpacing", "type": "int24" },
+      { "internalType": "address", "name": "hook", "type": "address" }
+    ],
+    "name": "getAmountOutUniswapV4FromSpecificPool",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountOut", "type": "uint256" },
+      { "internalType": "enum SwapAggregator.SwapProtocol", "name": "protocol", "type": "uint8" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "i_aerodromeRouter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "i_aerodromeMixedQuoter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "i_swapRouter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "i_uniswapV2Router",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "i_uniswapV3Quoter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "i_uniswapV4Quoter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "i_universalRouter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_tokenIn", "type": "address" },
+      { "internalType": "address", "name": "_tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "_amountIn", "type": "uint256" },
+      { "internalType": "address", "name": "_recipient", "type": "address" }
+    ],
+    "name": "swapUsingAerodromeV1Stable",
+    "outputs": [{ "internalType": "uint256", "name": "amountOut", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_tokenIn", "type": "address" },
+      { "internalType": "address", "name": "_tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "_amountIn", "type": "uint256" },
+      { "internalType": "address", "name": "_recipient", "type": "address" }
+    ],
+    "name": "swapUsingAerodromeV1Volatile",
+    "outputs": [{ "internalType": "uint256", "name": "amountOut", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_tokenIn", "type": "address" },
+      { "internalType": "address", "name": "_tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "_amountIn", "type": "uint256" },
+      { "internalType": "address", "name": "_recipient", "type": "address" },
+      { "internalType": "int24", "name": "_tickSpacing", "type": "int24" }
+    ],
+    "name": "swapUsingAerodromeV2",
+    "outputs": [{ "internalType": "uint256", "name": "amountOut", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenIn", "type": "address" },
+      { "internalType": "address", "name": "tokenOut", "type": "address" },
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint24", "name": "poolFee", "type": "uint24" },
+      { "internalType": "int24", "name": "tickSpacing", "type": "int24" },
+      { "internalType": "address", "name": "hook", "type": "address" },
+      { "internalType": "uint8", "name": "version", "type": "uint8" }
+    ],
+    "name": "swapUsingUniswapUniversalRouter",
+    "outputs": [{ "internalType": "uint256", "name": "amountOut", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

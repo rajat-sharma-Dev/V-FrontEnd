@@ -1,0 +1,239 @@
+/* Swap Component Styles */
+
+.page-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.intro-section {
+  margin-bottom: 2rem;
+}
+
+.swap-container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.swap-form {
+  width: 100%;
+}
+
+.token-swap-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.swap-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.swap-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.token-balance {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.token-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.token-amount-input {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.max-button-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.max-button {
+  font-size: 0.75rem;
+  background: #e9ecef;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+}
+
+.max-button:hover {
+  background: #dee2e6;
+}
+
+.swap-direction {
+  display: flex;
+  justify-content: center;
+  margin: -0.5rem 0;
+  position: relative;
+  z-index: 5;
+}
+
+.swap-direction-btn {
+  width: 36px;
+  height: 36px;
+  background: #6c63ff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.swap-direction-btn:hover {
+  background: #5a52d5;
+}
+
+.estimated-amount {
+  padding: 0.75rem;
+  background: #f1f3f5;
+  border-radius: 6px;
+  flex-grow: 1;
+  font-size: 1rem;
+  color: #495057;
+}
+
+.exchange-rate {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.rate-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rate-main {
+  font-weight: 500;
+}
+
+.rate-type, .protocol-info, .network-info {
+  color: #6c757d;
+}
+
+.swap-error {
+  padding: 0.75rem;
+  background: #f8d7da;
+  color: #721c24;
+  border-radius: 6px;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.swap-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: #6c63ff;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.swap-button:hover:not(:disabled) {
+  background: #5a52d5;
+}
+
+.swap-button:disabled {
+  background: #b5b2e3;
+  cursor: not-allowed;
+}
+
+.connect-prompt {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Protocol Selection Styles */
+.protocol-selection {
+  margin-top: 0.75rem;
+  border-top: 1px solid #e9ecef;
+  padding-top: 0.75rem;
+}
+
+.protocol-options {
+  margin-top: 0.5rem;
+}
+
+.protocol-options summary {
+  cursor: pointer;
+  color: #6c63ff;
+  font-weight: 500;
+}
+
+.protocol-list {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.protocol-option {
+  padding: 0.75rem;
+  border-radius: 6px;
+  background: #f1f3f5;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.protocol-option:hover {
+  background: #e9ecef;
+}
+
+.protocol-option.selected {
+  background: #e0e7ff;
+  border: 1px solid #6c63ff;
+}
+
+.protocol-name {
+  font-weight: 500;
+}
+
+.protocol-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #6c63ff;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}

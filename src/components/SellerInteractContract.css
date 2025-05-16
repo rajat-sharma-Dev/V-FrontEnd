@@ -1,0 +1,129 @@
+/* Additional styles for seller-specific features */
+/* Most styles are inherited from InteractContract.css */
+
+/* Release button styling */
+.release-button {
+  background-color: #2196f3;
+  color: white;
+  border: 1px solid #0b7dda;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.release-button:hover {
+  background-color: #0b7dda;
+}
+
+.release-button:disabled {
+  background-color: #b0bec5;
+  border-color: #90a4ae;
+  cursor: not-allowed;
+}
+
+/* Released tag styling */
+.released-tag {
+  color: #4caf50;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+/* Complete contract styling */
+.complete-contract-button {
+  background-color: #4caf50;
+  color: white;
+  border: 1px solid #45a049;
+  padding: 10px 16px;
+  border-radius: 5px;
+  font-weight: 600;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.complete-contract-button:hover {
+  background-color: #45a049;
+}
+
+/* Primary button for initiating contracts */
+.primary-button {
+  background-color: #4caf50;
+  color: white;
+  border: 1px solid #45a049;
+  padding: 10px 16px;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primary-button:hover {
+  background-color: #45a049;
+}
+
+/* Contract action buttons */
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.button-group button {
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.complete-button {
+  background-color: #4caf50;
+  color: white;
+  border: 1px solid #45a049;
+}
+
+.complete-button:hover {
+  background-color: #45a049;
+}
+
+.complete-button:disabled {
+  background-color: #a5d6a7;
+  border-color: #81c784;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.refund-button {
+  background-color: #f44336;
+  color: white;
+  border: 1px solid #d32f2f;
+}
+
+.refund-button:hover {
+  background-color: #d32f2f;
+}
+
+.action-description {
+  font-size: 14px;
+  color: #78909c;
+  margin-top: 8px;
+}
+
+/* Contract action group */
+.contract-action-group {
+  margin-top: 16px;
+}
+
+/* Make condition actions match buyer interface */
+.condition-status-message {
+  color: #78909c;
+  font-style: italic;
+  padding: 8px 0;
+}
+}

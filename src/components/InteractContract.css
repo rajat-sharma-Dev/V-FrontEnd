@@ -1,0 +1,411 @@
+/* InteractContract component styling */
+.interact-contract {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.section-header {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: white;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 8px 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: bold;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Loading spinner */
+.loading-container {
+  text-align: center;
+  padding: 40px 0;
+  color: white;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #3a7bd5;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.connect-prompt, .no-contract {
+  text-align: center;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: white;
+}
+
+.error-message {
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  border-radius: 5px;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  color: #e74c3c;
+}
+
+/* Contract summary section */
+.contract-summary {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 15px;
+}
+
+.summary-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: white;
+}
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background-color: rgba(58, 123, 213, 0.15);
+  color: #3a7bd5;
+}
+
+.status-badge.completed {
+  background-color: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+}
+
+.status-badge.disputed {
+  background-color: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+}
+
+.status-badge.pending {
+  background-color: rgba(243, 156, 18, 0.15);
+  color: #f39c12;
+}
+
+.summary-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.summary-row {
+  padding: 8px 0;
+}
+
+.summary-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.summary-value {
+  font-weight: 500;
+  color: white;
+}
+
+.summary-value.address {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  display: inline-block;
+}
+
+.summary-value.amount {
+  color: #3a7bd5;
+  font-weight: bold;
+}
+
+.summary-value.time {
+  color: #f39c12;
+}
+
+/* Conditions list */
+.conditions-container {
+  margin-bottom: 30px;
+}
+
+.conditions-container h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.4rem;
+  color: white;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.conditions-container h3:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: #3a7bd5;
+  border-radius: 2px;
+}
+
+.conditions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.condition-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s;
+  border-left: 5px solid rgba(255, 255, 255, 0.2);
+}
+
+.condition-item.completed {
+  border-left-color: #2ecc71;
+  background: rgba(46, 204, 113, 0.05);
+}
+
+.condition-item.rejected {
+  border-left-color: #e74c3c;
+  background: rgba(231, 76, 60, 0.05);
+}
+
+.condition-content {
+  margin-bottom: 15px;
+}
+
+.condition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.condition-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.condition-status {
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.condition-status.completed {
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+}
+
+.condition-status.rejected {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+}
+
+.condition-status.pending {
+  background: rgba(243, 156, 18, 0.15);
+  color: #f39c12;
+}
+
+.condition-description {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.advance-payment-tag {
+  display: inline-block;
+  background: rgba(58, 123, 213, 0.1);
+  border: 1px solid rgba(58, 123, 213, 0.3);
+  color: #3a7bd5;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.condition-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.approve-button, .reject-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.approve-button {
+  background-color: rgba(46, 204, 113, 0.8);
+  color: white;
+}
+
+.approve-button:hover {
+  background-color: rgba(46, 204, 113, 1);
+}
+
+.reject-button {
+  background-color: rgba(231, 76, 60, 0.8);
+  color: white;
+}
+
+.reject-button:hover {
+  background-color: rgba(231, 76, 60, 1);
+}
+
+.approve-button:disabled, .reject-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.approve-button .icon, .reject-button .icon {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.processing {
+  display: inline-block;
+  position: relative;
+}
+
+.condition-status-message {
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* Contract actions */
+.contract-actions-container {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.dispute-container {
+  text-align: center;
+}
+
+.dispute-info {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 15px;
+}
+
+.dispute-button {
+  background-color: rgba(231, 76, 60, 0.8);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dispute-button:hover {
+  background-color: rgba(231, 76, 60, 1);
+}
+
+.dispute-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.contract-complete-message, .dispute-active-message {
+  text-align: center;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.contract-complete-message {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #2ecc71;
+}
+
+.dispute-active-message {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+.success-icon, .warning-icon {
+  font-size: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .summary-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .condition-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .condition-actions {
+    flex-direction: column;
+  }
+  
+  .approve-button, .reject-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

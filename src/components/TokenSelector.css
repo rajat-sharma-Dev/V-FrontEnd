@@ -1,0 +1,96 @@
+/* Token Selector Custom CSS */
+.token-selector-container {
+  position: relative;
+  width: 100%;
+}
+
+.token-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.token-selector:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.selected-token {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.no-token-selected {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dropdown-arrow {
+  margin-left: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.token-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 5px;
+  background-color: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 10;
+  max-height: 300px;
+  color: white;
+}
+
+.token-search {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.token-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: white;
+}
+
+.token-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.token-list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.token-item {
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.token-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.token-item.selected {
+  background-color: rgba(78, 113, 242, 0.2);
+}
+
+.no-tokens-found {
+  padding: 15px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
