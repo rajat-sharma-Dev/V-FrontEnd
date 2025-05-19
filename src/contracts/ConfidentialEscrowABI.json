@@ -1,365 +1,378 @@
 {
-  "abi": [
-    {
-      "inputs": [
+    "abi": [
         {
-          "internalType": "address",
-          "name": "_seller",
-          "type": "address"
+            "type": "constructor",
+            "inputs": [
+                {
+                    "name": "_seller",
+                    "type": "address",
+                    "internalType": "address"
+                },
+                {
+                    "name": "_buyer",
+                    "type": "address",
+                    "internalType": "address"
+                },
+                {
+                    "name": "_amount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                },
+                {
+                    "name": "_tokenAddress",
+                    "type": "address",
+                    "internalType": "address"
+                },
+                {
+                    "name": "_governor",
+                    "type": "address",
+                    "internalType": "address"
+                },
+                {
+                    "name": "_conditions",
+                    "type": "tuple[]",
+                    "internalType": "struct ConfidentialEscrow.Condition[]",
+                    "components": [
+                        {
+                            "name": "title",
+                            "type": "string",
+                            "internalType": "string"
+                        },
+                        {
+                            "name": "description",
+                            "type": "string",
+                            "internalType": "string"
+                        },
+                        {
+                            "name": "approvedByBuyer",
+                            "type": "bool",
+                            "internalType": "bool"
+                        },
+                        {
+                            "name": "approvedBySeller",
+                            "type": "bool",
+                            "internalType": "bool"
+                        },
+                        {
+                            "name": "advancePayment",
+                            "type": "uint256",
+                            "internalType": "uint256"
+                        },
+                        {
+                            "name": "lock",
+                            "type": "bool",
+                            "internalType": "bool"
+                        }
+                    ]
+                },
+                {
+                    "name": "_deadLine",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                }
+            ],
+            "stateMutability": "nonpayable"
         },
         {
-          "internalType": "address",
-          "name": "_buyer",
-          "type": "address"
+            "type": "function",
+            "name": "approveCondition",
+            "inputs": [
+                {
+                    "name": "_conditionKey",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                }
+            ],
+            "outputs": [],
+            "stateMutability": "nonpayable"
         },
         {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
+            "type": "function",
+            "name": "approveRefund",
+            "inputs": [],
+            "outputs": [],
+            "stateMutability": "nonpayable"
         },
         {
-          "internalType": "address",
-          "name": "_tokenAddress",
-          "type": "address"
+            "type": "function",
+            "name": "ariseDispute",
+            "inputs": [],
+            "outputs": [],
+            "stateMutability": "nonpayable"
         },
         {
-          "internalType": "address",
-          "name": "_governor",
-          "type": "address"
+            "type": "function",
+            "name": "completeContract",
+            "inputs": [],
+            "outputs": [],
+            "stateMutability": "nonpayable"
         },
         {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "title",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "description",
-              "type": "string"
-            },
-            {
-              "internalType": "bool",
-              "name": "approvedByBuyer",
-              "type": "bool"
-            },
-            {
-              "internalType": "bool",
-              "name": "approvedBySeller",
-              "type": "bool"
-            },
-            {
-              "internalType": "uint256",
-              "name": "advancePayment",
-              "type": "uint256"
-            },
-            {
-              "internalType": "bool",
-              "name": "lock",
-              "type": "bool"
-            }
-          ],
-          "internalType": "struct ConfidentialEscrow.Condition[]",
-          "name": "_conditions",
-          "type": "tuple[]"
+            "type": "function",
+            "name": "deposit",
+            "inputs": [],
+            "outputs": [],
+            "stateMutability": "nonpayable"
         },
         {
-          "internalType": "uint256",
-          "name": "_deadLine",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "constructor"
-    },
-    {
-      "inputs": [],
-      "name": "ApprovalFailed",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "ConfidentionEscrow__TitleOfConditionsCanNotBeSame",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "InsufficientBalance",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "InvalidStatus",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "NotAllowed",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "NotBuyer",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "NotSeller",
-      "type": "error"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "buyer",
-          "type": "address"
+            "type": "function",
+            "name": "getBuyerAddress",
+            "inputs": [],
+            "outputs": [
+                { "name": "", "type": "address", "internalType": "address" }
+            ],
+            "stateMutability": "view"
         },
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "AmountLocked",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [],
-      "name": "ContractCompleted",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "buyer",
-          "type": "address"
+            "type": "function",
+            "name": "getCondition",
+            "inputs": [
+                {
+                    "name": "_conditionKey",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "condition",
+                    "type": "tuple",
+                    "internalType": "struct ConfidentialEscrow.Condition",
+                    "components": [
+                        {
+                            "name": "title",
+                            "type": "string",
+                            "internalType": "string"
+                        },
+                        {
+                            "name": "description",
+                            "type": "string",
+                            "internalType": "string"
+                        },
+                        {
+                            "name": "approvedByBuyer",
+                            "type": "bool",
+                            "internalType": "bool"
+                        },
+                        {
+                            "name": "approvedBySeller",
+                            "type": "bool",
+                            "internalType": "bool"
+                        },
+                        {
+                            "name": "advancePayment",
+                            "type": "uint256",
+                            "internalType": "uint256"
+                        },
+                        {
+                            "name": "lock",
+                            "type": "bool",
+                            "internalType": "bool"
+                        }
+                    ]
+                }
+            ],
+            "stateMutability": "view"
         },
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "DepositCompleted",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "approveKey",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "_conditionKey",
-          "type": "bytes32"
-        }
-      ],
-      "name": "approveCondition",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "approveRefund",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "ariseDispute",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "completeContract",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "deposit",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "_conditionKey",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getCondition",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "title",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "description",
-              "type": "string"
-            },
-            {
-              "internalType": "bool",
-              "name": "approvedByBuyer",
-              "type": "bool"
-            },
-            {
-              "internalType": "bool",
-              "name": "approvedBySeller",
-              "type": "bool"
-            },
-            {
-              "internalType": "uint256",
-              "name": "advancePayment",
-              "type": "uint256"
-            },
-            {
-              "internalType": "bool",
-              "name": "lock",
-              "type": "bool"
-            }
-          ],
-          "internalType": "struct ConfidentialEscrow.Condition",
-          "name": "condition",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "_conditionKey",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getConditionStatus",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "approvedByBuyer",
-          "type": "bool"
+            "type": "function",
+            "name": "getConditionKey",
+            "inputs": [
+                { "name": "_title", "type": "string", "internalType": "string" }
+            ],
+            "outputs": [
+                { "name": "", "type": "bytes32", "internalType": "bytes32" }
+            ],
+            "stateMutability": "pure"
         },
         {
-          "internalType": "bool",
-          "name": "approvedBySeller",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "_title",
-          "type": "string"
-        }
-      ],
-      "name": "getConditionKey",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getContractInfo",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "_buyer",
-          "type": "address"
+            "type": "function",
+            "name": "getConditionStatus",
+            "inputs": [
+                {
+                    "name": "_conditionKey",
+                    "type": "bytes32",
+                    "internalType": "bytes32"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "approvedByBuyer",
+                    "type": "bool",
+                    "internalType": "bool"
+                },
+                {
+                    "name": "approvedBySeller",
+                    "type": "bool",
+                    "internalType": "bool"
+                }
+            ],
+            "stateMutability": "view"
         },
         {
-          "internalType": "address",
-          "name": "_seller",
-          "type": "address"
+            "type": "function",
+            "name": "getContractInfo",
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "_buyer",
+                    "type": "address",
+                    "internalType": "address"
+                },
+                {
+                    "name": "_seller",
+                    "type": "address",
+                    "internalType": "address"
+                },
+                {
+                    "name": "_totalAmount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                },
+                {
+                    "name": "_status",
+                    "type": "uint8",
+                    "internalType": "enum ConfidentialEscrow.Status"
+                },
+                {
+                    "name": "_conditionKeys",
+                    "type": "bytes32[]",
+                    "internalType": "bytes32[]"
+                }
+            ],
+            "stateMutability": "view"
         },
         {
-          "internalType": "uint256",
-          "name": "_totalAmount",
-          "type": "uint256"
+            "type": "function",
+            "name": "getGovernor",
+            "inputs": [],
+            "outputs": [
+                { "name": "", "type": "address", "internalType": "address" }
+            ],
+            "stateMutability": "view"
         },
         {
-          "internalType": "enum ConfidentialEscrow.Status",
-          "name": "_status",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getGovernor",
-      "outputs": [
+            "type": "function",
+            "name": "getProposalId",
+            "inputs": [],
+            "outputs": [
+                { "name": "", "type": "uint256", "internalType": "uint256" }
+            ],
+            "stateMutability": "view"
+        },
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getToken",
-      "outputs": [
+            "type": "function",
+            "name": "getSellerAddress",
+            "inputs": [],
+            "outputs": [
+                { "name": "", "type": "address", "internalType": "address" }
+            ],
+            "stateMutability": "view"
+        },
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getVault",
-      "outputs": [
+            "type": "function",
+            "name": "getToken",
+            "inputs": [],
+            "outputs": [
+                { "name": "", "type": "address", "internalType": "address" }
+            ],
+            "stateMutability": "view"
+        },
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ]
+            "type": "event",
+            "name": "AmountLocked",
+            "inputs": [
+                {
+                    "name": "buyer",
+                    "type": "address",
+                    "indexed": true,
+                    "internalType": "address"
+                },
+                {
+                    "name": "amount",
+                    "type": "uint256",
+                    "indexed": false,
+                    "internalType": "uint256"
+                }
+            ],
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "name": "ContractCompleted",
+            "inputs": [],
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "name": "DepositCompleted",
+            "inputs": [
+                {
+                    "name": "buyer",
+                    "type": "address",
+                    "indexed": true,
+                    "internalType": "address"
+                },
+                {
+                    "name": "amount",
+                    "type": "uint256",
+                    "indexed": false,
+                    "internalType": "uint256"
+                }
+            ],
+            "anonymous": false
+        },
+        {
+            "type": "event",
+            "name": "DisputeRaised",
+            "inputs": [
+                {
+                    "name": "buyer",
+                    "type": "address",
+                    "indexed": true,
+                    "internalType": "address"
+                },
+                {
+                    "name": "seller",
+                    "type": "address",
+                    "indexed": true,
+                    "internalType": "address"
+                },
+                {
+                    "name": "amount",
+                    "type": "uint256",
+                    "indexed": false,
+                    "internalType": "uint256"
+                },
+                {
+                    "name": "governorContract",
+                    "type": "address",
+                    "indexed": false,
+                    "internalType": "address"
+                }
+            ],
+            "anonymous": false
+        },
+        { "type": "error", "name": "ApprovalFailed", "inputs": [] },
+        {
+            "type": "error",
+            "name": "ConfidentialEscrow__NoAdvancePaymentAfterLock",
+            "inputs": []
+        },
+        {
+            "type": "error",
+            "name": "ConfidentialEscrow__OnlyOneLockConditionAllowed",
+            "inputs": []
+        },
+        {
+            "type": "error",
+            "name": "ConfidentionEscrow__TitleOfConditionsCanNotBeSame",
+            "inputs": []
+        },
+        { "type": "error", "name": "InsufficientBalance", "inputs": [] },
+        { "type": "error", "name": "InvalidStatus", "inputs": [] },
+        { "type": "error", "name": "NotAllowed", "inputs": [] },
+        { "type": "error", "name": "NotBuyer", "inputs": [] },
+        { "type": "error", "name": "NotSeller", "inputs": [] }
+    ]
 }

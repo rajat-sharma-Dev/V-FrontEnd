@@ -6,7 +6,7 @@ import './InteractContract.css'; // Reusing existing CSS
 import './SellerInteractContract.css'; // Additional seller-specific styles
 
 const SellerInteractContract = ({ contract, onBack }) => {
-  const { isConnected, chainId, account } = useWeb3(); // Removed unused signer variable
+  const { isConnected, chainId, account, signer } = useWeb3();
   const [loading, setLoading] = useState(false);
   const [contractDetails, setContractDetails] = useState(null);
   const [error, setError] = useState('');
@@ -18,6 +18,11 @@ const SellerInteractContract = ({ contract, onBack }) => {
   useEffect(() => {
     const loadContractDetails = async () => {
       if (!isConnected || !contract || !contract.contractAddress) {
+        console.log("Cannot load contract details - missing prerequisites:", { 
+          isConnected, 
+          contractExists: !!contract, 
+          contractAddressExists: contract ? !!contract.contractAddress : false 
+        });
         return;
       }
       
@@ -25,26 +30,120 @@ const SellerInteractContract = ({ contract, onBack }) => {
         setLoading(true);
         setError('');
         
-        // In a real application, you would:
-        // 1. Create a contract instance using the address
-        // 2. Call appropriate methods to get the contract details
-        // 3. Format the data for display
+        console.log("Creating contract instance for address:", contract.contractAddress);
         
-        // For demo purposes, using the passed in contract data
-        const details = {
-          ...contract,
-          // Add any additional data we might need
-          remainingTime: calculateRemainingTime(contract.timestamp, contract.deliveryDays),
-          sellerAddress: account,
-        };
+        // Create a contract instance using the address
+        const escrowContract = await createContractFromConfig(
+          'CONFIDENTIAL_ESCROW',
+          chainId,
+          signer,
+          contract.contractAddress
+        );
         
-        // For seller UI, if buyer address isn't set, we should set it
-        if (!details.buyerAddress) {
-          details.buyerAddress = contract.buyerAddress || "0x1234567890123456789012345678901234567890"; // Fallback to ensure UI works
+        if (!escrowContract) {
+          console.error("Failed to create contract instance for address:", contract.contractAddress);
+          setError("Failed to create contract instance");
+          setLoading(false);
+          return;
         }
         
-        setContractDetails(details);
-        setLoading(false);
+        console.log("Contract instance created successfully:", escrowContract.target);
+        
+        // Fetch token address from the contract
+        try {
+            const tokenAddress = await escrowContract.getToken();
+            console.log("Token address fetched:", tokenAddress);
+            
+            // Try to get token symbol if it's an ERC20
+            let tokenSymbol = "";
+            try {
+              // Create a minimal ERC20 interface to call symbol()
+              const tokenContract = new ethers.Contract(
+                tokenAddress,
+                ['function symbol() view returns (string)'],
+                signer
+              );
+              tokenSymbol = await tokenContract.symbol();
+            } catch (err) {
+              console.warn("Could not fetch token symbol:", err.message);
+              // If we can't get the symbol, use a short version of the address
+              tokenSymbol = `${tokenAddress.substring(0, 6)}...${tokenAddress.substring(38)}`;
+            }
+            
+            // Check if contract has been deposited by fetching contract info
+            let depositStatus = false;
+            try {
+              const contractInfo = await escrowContract.getContractInfo();
+              console.log("Contract info:", contractInfo);
+              // Status enum: 0 = IN_PROGRESS, 1 = FUNDS_LOCKED, 2 = COMPLETE
+              const statusValue = Number(contractInfo[3]); // The 4th return value is the status
+              
+              // If status is FUNDS_LOCKED (1) or COMPLETE (2), funds have been deposited
+              depositStatus = statusValue > 0;
+              console.log("Deposit status:", depositStatus);
+            } catch (err) {
+              console.warn("Could not fetch contract status:", err.message);
+            }
+            
+            // Create details object with the contract data plus additional information
+            const details = {
+              ...contract,
+              tokenAddress,
+              tokenSymbol,
+              paymentTokenSymbol: tokenSymbol,
+              isDeposited: depositStatus,
+              // Add any additional data we might need
+              remainingTime: calculateRemainingTime(contract.timestamp, contract.deliveryDays),
+              sellerAddress: account,
+            };
+            
+            // For seller UI, if buyer address isn't set, we should set it
+            if (!details.buyerAddress) {
+              details.buyerAddress = contract.buyerAddress || "0x1234567890123456789012345678901234567890"; // Fallback to ensure UI works
+            }
+            
+            // Make sure each condition has approval tracking
+            if (details.conditions) {
+              details.conditions = details.conditions.map(condition => ({
+                ...condition,
+                approvedByBuyer: condition.approvedByBuyer || false,
+                approvedBySeller: condition.approvedBySeller || false,
+                // Mark as completed if both parties have approved or if completed flag is true
+                completed: condition.completed || (condition.approvedByBuyer && condition.approvedBySeller)
+              }));
+            }
+            
+            setContractDetails(details);
+          } catch (err) {
+            console.error("Error fetching token address:", err);
+            
+            // If we can't fetch the token, still proceed with the contract data we have
+            const details = {
+              ...contract,
+              // Add any additional data we might need
+              remainingTime: calculateRemainingTime(contract.timestamp, contract.deliveryDays),
+              sellerAddress: account,
+            };
+            
+            // For seller UI, if buyer address isn't set, we should set it
+            if (!details.buyerAddress) {
+              details.buyerAddress = contract.buyerAddress || "0x1234567890123456789012345678901234567890"; // Fallback to ensure UI works
+            }
+            
+            // Make sure each condition has approval tracking
+            if (details.conditions) {
+              details.conditions = details.conditions.map(condition => ({
+                ...condition,
+                approvedByBuyer: condition.approvedByBuyer || false,
+                approvedBySeller: condition.approvedBySeller || false,
+                // Mark as completed if both parties have approved or if completed flag is true
+                completed: condition.completed || (condition.approvedByBuyer && condition.approvedBySeller)
+              }));
+            }
+            
+            setContractDetails(details);
+            setLoading(false);
+          }
       } catch (err) {
         console.error("Error loading contract details:", err);
         setError("Failed to load contract details");
@@ -72,7 +171,7 @@ const SellerInteractContract = ({ contract, onBack }) => {
     return `${days}d ${hours}h`;
   };
   
-  // Handle marking a condition as complete (request approval)
+  // Handle approving a condition as the seller
   const handleMarkConditionComplete = async (conditionIndex) => {
     if (!isConnected || !contractDetails || processingAction) return;
     
@@ -81,30 +180,53 @@ const SellerInteractContract = ({ contract, onBack }) => {
     setProcessingAction(true);
     
     try {
-      // In a real application, you would:
-      // 1. Call the smart contract to request approval for this condition
-      // 2. Wait for transaction confirmation
-      // 3. Update the UI based on the result
+      // Get the condition key from the title (hash of the title)
+      const conditionTitle = contractDetails.conditions[conditionIndex].title;
       
-      // For demo purposes, simulate a transaction
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create contract instance
+      const escrowContract = createContractFromConfig(
+        'CONFIDENTIAL_ESCROW',
+        chainId,
+        signer, // Make sure signer is properly imported in component props
+        contractDetails.contractAddress
+      );
       
-      // Update the contract details to show pending approval
+      if (!escrowContract) {
+        throw new Error("Unable to connect to the contract");
+      }
+      
+      // Get condition key from the contract
+      const conditionKey = await escrowContract.getConditionKey(conditionTitle);
+      
+      // Call the approveCondition function on the contract
+      const tx = await escrowContract.approveCondition(conditionKey);
+      await tx.wait();
+      
+      // Update the contract details
       setContractDetails(prev => {
         const updated = {...prev};
         updated.conditions = [...prev.conditions];
         updated.conditions[conditionIndex] = {
           ...updated.conditions[conditionIndex],
-          pendingApproval: true
+          approvedBySeller: true
         };
+        
+        // Mark as completed if both buyer and seller approved
+        if (updated.conditions[conditionIndex].approvedByBuyer && 
+            updated.conditions[conditionIndex].approvedBySeller) {
+          updated.conditions[conditionIndex].completed = true;
+        }
+        
         return updated;
       });
+      
+      // No need to update localStorage as contract state is stored on blockchain
       
       setProcessingAction(false);
       setSelectedCondition(null);
     } catch (err) {
-      console.error("Error marking condition as complete:", err);
-      setError(`Failed to mark condition as complete: ${err.message || "Unknown error"}`);
+      console.error("Error approving condition:", err);
+      setError(`Failed to approve condition: ${err.message || "Unknown error"}`);
       setProcessingAction(false);
       setSelectedCondition(null);
     }
@@ -287,6 +409,9 @@ const SellerInteractContract = ({ contract, onBack }) => {
     if (!contractDetails || processingAction) return false;
     if (contractDetails.status === "disputed" || contractDetails.status === "completed") return false;
     
+    // Cannot interact if funds have not been deposited
+    if (!contractDetails.isDeposited) return false;
+    
     // Can't interact if already completed
     if (condition.completed) return false;
     
@@ -333,7 +458,7 @@ const SellerInteractContract = ({ contract, onBack }) => {
               <div className="summary-row">
                 <span className="summary-label">Contract Address:</span>
                 <span className="summary-value">
-                  {formatAddress(contractDetails.contractAddress)}
+                  {contractDetails.contractAddress || "N/A"}
                 </span>
               </div>
               
@@ -354,7 +479,28 @@ const SellerInteractContract = ({ contract, onBack }) => {
               <div className="summary-row">
                 <span className="summary-label">Total Amount:</span>
                 <span className="summary-value amount">
-                  {contractDetails.price} {contractDetails.paymentToken}
+                  {contractDetails.price} {contractDetails.paymentTokenSymbol || 
+                  (contractDetails.paymentToken !== "0x1111111111111111111111111111111111111111" ? 
+                    contractDetails.paymentToken : "")}
+                </span>
+              </div>
+              
+              <div className="summary-row">
+                <span className="summary-label">Payment Token:</span>
+                <span className="summary-value token">
+                  {contractDetails.tokenSymbol || "Unknown Token"} 
+                  {contractDetails.tokenAddress && (
+                    <span className="token-address">
+                      ({formatAddress(contractDetails.tokenAddress)})
+                    </span>
+                  )}
+                </span>
+              </div>
+              
+              <div className="summary-row">
+                <span className="summary-label">Network:</span>
+                <span className="summary-value network">
+                  {chainId === 8453 ? "Base Mainnet" : chainId === 84532 ? "Base Sepolia" : `Chain ID: ${chainId}`}
                 </span>
               </div>
               
@@ -362,12 +508,32 @@ const SellerInteractContract = ({ contract, onBack }) => {
                 <div className="summary-row">
                   <span className="summary-label">Total Advance:</span>
                   <span className="summary-value amount">
-                    {contractDetails.totalAdvancePayment} {contractDetails.paymentToken}
+                    {contractDetails.totalAdvancePayment} {contractDetails.paymentTokenSymbol || 
+                    (contractDetails.paymentToken !== "0x1111111111111111111111111111111111111111" ? 
+                      contractDetails.paymentToken : "")}
                   </span>
                 </div>
               )}
             </div>
           </div>
+          
+          {/* Deposit Status */}
+          {!contractDetails.isDeposited && (
+            <div className="deposit-status not-deposited">
+              <div className="status-badge waiting">
+                <span className="icon">⚠️</span> Waiting for buyer to deposit funds
+              </div>
+              <p className="deposit-info-message">The buyer must deposit the full contract amount before either party can interact with conditions.</p>
+            </div>
+          )}
+          
+          {contractDetails.isDeposited && (
+            <div className="deposit-status">
+              <div className="status-badge deposited">
+                <span className="icon">✓</span> Funds Deposited
+              </div>
+            </div>
+          )}
           
           {/* Conditions List */}
           <div className="conditions-container">
@@ -389,9 +555,26 @@ const SellerInteractContract = ({ contract, onBack }) => {
                     
                     <p className="condition-description">{condition.description}</p>
                     
+                    <div className="condition-approval-status">
+                      <div className="approval-item">
+                        <span className="approval-label">Buyer:</span>
+                        <span className={`approval-value ${condition.approvedByBuyer ? 'approved' : 'pending'}`}>
+                          {condition.approvedByBuyer ? '✓ Approved' : 'Pending'}
+                        </span>
+                      </div>
+                      <div className="approval-item">
+                        <span className="approval-label">Seller:</span>
+                        <span className={`approval-value ${condition.approvedBySeller ? 'approved' : 'pending'}`}>
+                          {condition.approvedBySeller ? '✓ Approved' : 'Pending'}
+                        </span>
+                      </div>
+                    </div>
+                    
                     {condition.advancePayment && (
                       <div className="advance-payment-tag">
-                        Advance Payment: {condition.advanceAmount} {contractDetails.paymentToken}
+                        Advance Payment: {condition.advanceAmount} {contractDetails.paymentTokenSymbol || 
+                        (contractDetails.paymentToken !== "0x1111111111111111111111111111111111111111" ? 
+                          contractDetails.paymentToken : "")}
                         {condition.advanceReleased && <span className="released-tag"> (Released)</span>}
                       </div>
                     )}
@@ -409,7 +592,7 @@ const SellerInteractContract = ({ contract, onBack }) => {
                             <span className="processing">Processing...</span>
                           ) : (
                             <>
-                              <span className="icon">✓</span> Mark as Complete
+                              <span className="icon">✓</span> Approve
                             </>
                           )}
                         </button>
@@ -434,13 +617,19 @@ const SellerInteractContract = ({ contract, onBack }) => {
                     
                     {condition.pendingApproval && (
                       <div className="condition-status-message">
-                        Waiting for buyer approval
+                        Waiting for approval
                       </div>
                     )}
                     
                     {!canInteractWithCondition(condition, index) && !condition.completed && !condition.pendingApproval && (
                       <div className="condition-status-message">
                         Complete previous conditions first
+                      </div>
+                    )}
+                    
+                    {condition.completed && (
+                      <div className="condition-status-message">
+                        This condition has been approved
                       </div>
                     )}
                   </div>

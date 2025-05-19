@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWeb3 } from '../hooks/useWeb3';
 import { createContractFromConfig, formatContractStatus, formatAddress } from '../utils/contractHelpers';
 import { getPaginatedItems, getTotalPages, getPageNumbers } from '../utils/paginationUtils';
+import { getBuyerContracts, getSellerContracts, getAllContracts } from '../utils/escrowHelpers';
+import { ethers } from 'ethers';
 import ContractDetails from './ContractDetails';
 import './ViewContracts.css';
 
@@ -19,15 +21,10 @@ const ViewContracts = ({ userRole }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const contractsPerPage = 5;
   
-  // Load contracts on component mount and when account/chainId changes
-  useEffect(() => {
-    if (isConnected && account) {
-      fetchContracts();
-    }
-  }, [isConnected, account, chainId, userRole, fetchContracts]);
-  
-  
-  const fetchContracts = async () => {
+  // Create fetchContracts function with useCallback to avoid dependency loop
+  const fetchContracts = useCallback(async () => {
+    if (!isConnected || !account || !chainId || !signer) return;
+    
     setLoading(true);
     setError('');
     
@@ -38,104 +35,94 @@ const ViewContracts = ({ userRole }) => {
         throw new Error("Contract factory not available on this network");
       }
       
-      // We'll use local storage as a temporary solution but structure the code to be
-      // ready for real blockchain integration
-      const mockData = getMockContracts();
-      setContracts(mockData);
+      // Fetch contracts based on user role
+      let contractAddresses = [];
       
-      // In a real blockchain implementation, this is how we would fetch contracts:
-      // Different methods based on user role:
-      if (isConnected && factoryContract) {
-        try {
-          console.log(`Fetching contracts for ${userRole} at address ${account}`);
-          
-          // These methods would be implemented in the smart contract
-          // Currently commented out until the contract is deployed with these methods
-          /*
-          let contractAddresses = [];
-          
-          if (userRole === 'buyer') {
-            contractAddresses = await factoryContract.getBuyerContracts(account);
-          } else if (userRole === 'seller') {
-            contractAddresses = await factoryContract.getSellerContracts(account);
-          } else if (userRole === 'validator') {
-            contractAddresses = await factoryContract.getDisputedContracts();
-          }
-          
-          // Then fetch details for each contract
-          const contractsData = await Promise.all(
-            contractAddresses.map(async (address) => {
-              const escrowContract = createContractFromConfig(
-                'CONFIDENTIAL_ESCROW', 
-                chainId, 
-                signer, 
-                address
-              );
-              
-              // Get basic contract details
-              const buyer = await escrowContract.buyer();
-              const seller = await escrowContract.seller();
-              const price = await escrowContract.amount();
-              const status = await escrowContract.getStatus();
-              
-              // Format and return contract data
-              return {
-                contractAddress: address,
-                buyerAddress: buyer,
-                sellerAddress: seller,
-                price: ethers.formatEther(price),
-                status: formatStatus(status),
-                // ...other contract details
-              };
-            })
+      if (userRole === 'buyer') {
+        contractAddresses = await getBuyerContracts(factoryContract, account, signer);
+      } else if (userRole === 'seller') {
+        contractAddresses = await getSellerContracts(factoryContract, account, signer);
+      } else if (userRole === 'validator') {
+        // For validators, we could get all contracts and filter for disputed ones
+        // This depends on what functionality the factory contract provides
+        contractAddresses = await getAllContracts(factoryContract, signer);
+      }
+      
+      if (contractAddresses.length === 0) {
+        setContracts([]);
+        setLoading(false);
+        return;
+      }
+      
+      // Then fetch details for each contract
+      const contractsData = await Promise.all(
+        contractAddresses.map(async (address, index) => {
+          const escrowContract = createContractFromConfig(
+            'CONFIDENTIAL_ESCROW', 
+            chainId, 
+            signer, 
+            address
           );
           
-          setContracts(contractsData);
-          */
-        } catch (err) {
-          console.error("Error fetching blockchain contracts:", err);
-          // Fallback to mock data if blockchain fails
-        }
-      }
+          // Get basic contract details
+          // Use getContractInfo which returns all basic info including the status
+          const contractInfo = await escrowContract.getContractInfo();
+          const buyer = contractInfo[0]; // buyer is at index 0
+          const seller = contractInfo[1]; // seller is at index 1
+          const amount = contractInfo[2]; // total amount is at index 2
+          const statusCode = contractInfo[3]; // status is at index 3
+          
+          // Map contract status to our frontend status
+          const statusMap = {
+            0: 'pending', // IN_PROGRESS
+            1: 'active',  // FUNDS_LOCKED
+            2: 'completed' // COMPLETE
+          };
+          
+          const status = statusMap[statusCode] || 'unknown';
+          
+          // Format and return contract data
+          return {
+            id: index + 1,
+            contractAddress: address,
+            buyerAddress: buyer,
+            sellerAddress: seller,
+            price: ethers.formatEther(amount),
+            status,
+            conditions: [
+              { title: "Condition 1", description: "First deliverable", completed: status === 'completed' },
+              { title: "Condition 2", description: "Second deliverable", completed: status === 'completed' }
+            ],
+            deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            createdAt: new Date().toISOString()
+          };
+        })
+      );
+      
+      setContracts(contractsData);
     } catch (err) {
       console.error("Error fetching contracts:", err);
       setError(err.message || "Failed to fetch contracts");
+      // Generate mock data if we can't fetch from blockchain
+      setContracts(getMockContracts());
     } finally {
       setLoading(false);
     }
-  };
+  }, [isConnected, account, chainId, signer, userRole]);
   
-  // Helper function to get mock contracts (replace with actual contract data in production)
+  // Load contracts on component mount and when account/chainId changes
+  useEffect(() => {
+    if (isConnected && account) {
+      fetchContracts();
+    }
+  }, [isConnected, account, chainId, userRole, fetchContracts]);
+  
+  // Helper function to get mock contracts (only used as fallback)
   const getMockContracts = () => {
     // For now, we'll simulate different contracts based on user role
-    // In a real implementation, this would come from the blockchain
-    
     const mockData = [];
     const today = new Date();
     
-    // Get contracts from localStorage if any
-    const storedContracts = localStorage.getItem('userContracts');
-    if (storedContracts) {
-      try {
-        const parsedContracts = JSON.parse(storedContracts);
-        
-        // Filter by role
-        if (userRole === 'buyer') {
-          return parsedContracts.filter(c => c.buyerAddress === account);
-        } else if (userRole === 'seller') {
-          return parsedContracts.filter(c => c.sellerAddress === account);
-        } else if (userRole === 'validator') {
-          // For validators, show all contracts that are in dispute
-          return parsedContracts.filter(c => c.status === 'disputed');
-        }
-        
-        return parsedContracts;
-      } catch (e) {
-        console.error("Error parsing stored contracts:", e);
-      }
-    }
-    
-    // If no stored contracts or error, return some mock data
     if (userRole === 'buyer') {
       mockData.push(
         {
@@ -151,79 +138,13 @@ const ViewContracts = ({ userRole }) => {
           ],
           deadline: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           createdAt: new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '2',
-          contractAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          sellerAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          buyerAddress: account,
-          price: '0.5',
-          status: 'completed',
-          conditions: [
-            { title: 'Logo Design', description: 'Create company logo', completed: true }
-          ],
-          deadline: new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date(today.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      );
-    } else if (userRole === 'seller') {
-      mockData.push(
-        {
-          id: '3',
-          contractAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          sellerAddress: account,
-          buyerAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          price: '2.0',
-          status: 'active',
-          conditions: [
-            { title: 'Backend Implementation', description: 'Implement API and database', completed: false },
-            { title: 'Testing', description: 'Unit and integration tests', completed: false }
-          ],
-          deadline: new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '4',
-          contractAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          sellerAddress: account,
-          buyerAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          price: '0.8',
-          status: 'disputed',
-          conditions: [
-            { title: 'Content Creation', description: 'Create 10 blog posts', completed: true },
-            { title: 'SEO Optimization', description: 'Keyword research and implementation', completed: false }
-          ],
-          deadline: new Date(today.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      );
-    } else if (userRole === 'validator') {
-      mockData.push(
-        {
-          id: '5',
-          contractAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          sellerAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          buyerAddress: '0x' + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          price: '1.5',
-          status: 'disputed',
-          dispute: {
-            reason: 'Quality issues',
-            createdAt: new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            votes: { buyer: 0, seller: 0 }
-          },
-          conditions: [
-            { title: 'Smart Contract Audit', description: 'Complete security audit of contracts', completed: true },
-            { title: 'Vulnerability Report', description: 'Detailed report of findings', completed: false }
-          ],
-          deadline: new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
         }
       );
     }
     
     return mockData;
   };
-  
+
   // Function to handle contract selection for detailed view
   const handleContractSelect = (contract) => {
     setSelectedContract(contract);

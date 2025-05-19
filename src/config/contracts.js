@@ -1,412 +1,226 @@
 /**
  * Smart Contract Configuration
- * 
+ *
  * This file contains the addresses, ABIs, and other configuration
  * needed for interacting with various smart contracts in the application.
- * 
+ *
  * Update these values based on your deployed contracts and network.
  */
 
-import { ERC20_ABI } from '../contracts/ERC20ABI';
-import ConfidentialEscrowABI from '../contracts/ConfidentialEscrowABI.json';
-import EncryptedVaultABI from '../contracts/EncryptedVaultABI.json';
-import FactoryABI from '../contracts/FactoryABI.json';
+import { CONFIDENTIAL_ESCROW, CONTRACT_FACTORY, ERC20 } from "./contractTypes";
+import ConfidentialEscrowABI from "../contracts/ConfidentialEscrowABI.json";
+import FactoryABI from "../contracts/FactoryABI.json";
+import { ERC20_ABI } from "../contracts/ERC20ABI";
 
-// Network Configuration
-export const NETWORKS = {
-  ETHEREUM_MAINNET: {
-    id: 1,
-    name: 'Ethereum Mainnet',
-    rpcUrl: 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY', // Replace with your Infura key
-    symbol: 'ETH',
-    blockExplorer: 'https://etherscan.io'
-  },
-  SEPOLIA: {
-    id: 11155111,
-    name: 'Sepolia Testnet',
-    rpcUrl: 'https://sepolia.infura.io/v3/YOUR_INFURA_KEY', // Replace with your Infura key
-    symbol: 'ETH',
-    blockExplorer: 'https://sepolia.etherscan.io'
-  },
-  SEPOLIA_BASE: {
-    id: 84531,
-    name: 'Sepolia Base Testnet',
-    rpcUrl: 'https://sepolia.base.org',
-    symbol: 'ETH',
-    blockExplorer: 'https://sepolia.basescan.org'
-  },
-  POLYGON: {
-    id: 137,
-    name: 'Polygon Mainnet',
-    rpcUrl: 'https://polygon-rpc.com',
-    symbol: 'MATIC',
-    blockExplorer: 'https://polygonscan.com'
-  },
-  MUMBAI: {
-    id: 80001,
-    name: 'Mumbai Testnet',
-    rpcUrl: 'https://rpc-mumbai.maticvigil.com',
-    symbol: 'MATIC',
-    blockExplorer: 'https://mumbai.polygonscan.com'
-  }
-};
-
-// Default network
-export const DEFAULT_NETWORK = NETWORKS.ETHEREUM_MAINNET;
-
-// Smart Contract Addresses
-// Replace these placeholder addresses with your actual deployed contract addresses
-export const CONTRACT_ADDRESSES = {
-  // Main marketplace contract
-  MARKETPLACE: {
-    1: '0x1234567890123456789012345678901234567890', // Ethereum Mainnet
-    11155111: '0x1234567890123456789012345678901234567890', // Sepolia
-    137: '0x1234567890123456789012345678901234567890', // Polygon
-    80001: '0x1234567890123456789012345678901234567890' // Mumbai
-  },
-  
-  // Buyer contract
-  BUYER: {
-    1: '0x2345678901234567890123456789012345678901',
-    11155111: '0x2345678901234567890123456789012345678901',
-    137: '0x2345678901234567890123456789012345678901',
-    80001: '0x2345678901234567890123456789012345678901'
-  },
-  
-  // Seller contract
-  SELLER: {
-    1: '0x3456789012345678901234567890123456789012',
-    11155111: '0x3456789012345678901234567890123456789012',
-    137: '0x3456789012345678901234567890123456789012',
-    80001: '0x3456789012345678901234567890123456789012'
-  },
-  
-  // Validator contract
-  VALIDATOR: {
-    1: '0x4567890123456789012345678901234567890123',
-    11155111: '0x4567890123456789012345678901234567890123',
-    137: '0x4567890123456789012345678901234567890123',
-    80001: '0x4567890123456789012345678901234567890123'
-  },
-  
-  // Swap Aggregator contract
-  SWAP_AGGREGATOR: {
-    1: '0x5678901234567890123456789012345678901234', // Ethereum Mainnet
-    11155111: '0x5678901234567890123456789012345678901234', // Sepolia
-    137: '0x5678901234567890123456789012345678901234', // Polygon
-    80001: '0x5678901234567890123456789012345678901234' // Mumbai
-  },
-  
-  // Token swap contract
-  SWAP: {
-    1: '0x5678901234567890123456789012345678901234',
-    11155111: '0x5678901234567890123456789012345678901234',
-    137: '0x5678901234567890123456789012345678901234',
-    80001: '0x5678901234567890123456789012345678901234'
-  },
-  
-  // Contract Factory for ConfidentialEscrow
-  CONTRACT_FACTORY: {
-    1: '0x6789012345678901234567890123456789012345',
-    11155111: '0x6789012345678901234567890123456789012345',
-    137: '0x6789012345678901234567890123456789012345',
-    80001: '0x6789012345678901234567890123456789012345',
-    84532: '0xB92596471F1652F33fA09809fA16fB6660E6cF71' // Sepolia Base Testnet
-  },
-  
-  // Popular token addresses
-  TOKENS: {
-    // Ethereum Mainnet
-    1: {
-      WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-      DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
-    },
-    // Sepolia
-    11155111: {
-      WETH: '0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9', // Example - replace with actual
-      USDC: '0xda9d4f9b69ac6C22e444eD9aF0CfC043b7a7f53f', // Example - replace with actual
-    },
-    // Polygon
-    137: {
-      WMATIC: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
-      USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
-      WETH: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
-    },
-    // Mumbai
-    80001: {
-      WMATIC: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889', // Example - replace with actual
-      USDC: '0xe11A86849d99F524cAC3E7A0Ec1241828e332C62'  // Example - replace with actual
-    }
-  }
-};
-
-// Smart Contract ABIs
+// Define the CONTRACT_ABIS object and export it
 export const CONTRACT_ABIS = {
-  // Import your ABIs here or define them inline
-  ERC20: ERC20_ABI,
-  CONFIDENTIAL_ESCROW: ConfidentialEscrowABI.abi,
-  ENCRYPTED_VAULT: EncryptedVaultABI.abi,
-  CONTRACT_FACTORY: FactoryABI.abi,
-  
-  // Example Marketplace ABI - Replace with your actual ABI
-  MARKETPLACE: [
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_token",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
+    [CONFIDENTIAL_ESCROW]: ConfidentialEscrowABI.abi,
+    [CONTRACT_FACTORY]: FactoryABI.abi,
+    [ERC20]: ERC20_ABI,
+};
+
+// Contract addresses by network
+export const CONTRACT_ADDRESSES = {
+    // Base Sepolia Testnet (Chain ID: 84532)
+    84532: {
+        [CONFIDENTIAL_ESCROW]: "", // This will be dynamically created by the factory
+        [CONTRACT_FACTORY]: "0x8C62AE5a78Cd17a8853B906224D2c0af6953b697", // Your deployed Factory contract address
+        [ERC20]: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // Your ERC20 token address on Base Sepolia
     },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "itemId",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "seller",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        }
-      ],
-      "name": "ItemListed",
-      "type": "event"
+    // Add other networks as needed
+    // Example for Ethereum Mainnet:
+    1: {
+        [CONFIDENTIAL_ESCROW]: "",
+        [CONTRACT_FACTORY]: "",
+        [ERC20]: "",
     },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "itemId",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "buyer",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "seller",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        }
-      ],
-      "name": "ItemSold",
-      "type": "event"
+    // Example for Sepolia Testnet:
+    11155111: {
+        [CONFIDENTIAL_ESCROW]: "",
+        [CONTRACT_FACTORY]: "",
+        [ERC20]: "",
     },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_itemId",
-          "type": "uint256"
-        }
-      ],
-      "name": "buyItem",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getItemCount",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_itemId",
-          "type": "uint256"
-        }
-      ],
-      "name": "getItemDetails",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "description",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "seller",
-          "type": "address"
-        },
-        {
-          "internalType": "bool",
-          "name": "sold",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "_name",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "_description",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_price",
-          "type": "uint256"
-        }
-      ],
-      "name": "listItem",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+};
+
+// Get contract ABI
+export function getContractABI(contractType) {
+    return CONTRACT_ABIS[contractType];
+}
+
+// Get contract address for the specified network
+export function getContractAddress(contractType, chainId) {
+    // Ensure chainId is provided and is either a number or can be converted to a number
+    if (!chainId) {
+        console.error(`Invalid chainId provided: ${chainId}`);
+        return null;
     }
-  ],
-  
-  // Validator contract ABI - Replace with your actual ABI
-  VALIDATOR: [
-    {
-      "inputs": [],
-      "name": "stake",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "unstake",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_validator",
-          "type": "address"
-        }
-      ],
-      "name": "getValidatorInfo",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "stakedAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "rewards",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "joinedTimestamp",
-          "type": "uint256"
-        },
-        {
-          "internalType": "bool",
-          "name": "isActive",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+
+    // If chainId is a hex address rather than a numeric chain ID, it's likely an error
+    if (
+        typeof chainId === "string" &&
+        chainId.startsWith("0x") &&
+        chainId.length === 42
+    ) {
+        console.error(
+            `Received contract address (${chainId}) instead of chainId. This is likely an error.`
+        );
+        return null;
     }
-  ],
-  
-  // Add other contract ABIs as needed
+
+    // Convert chainId to number to ensure consistent comparisons
+    let chainIdNum;
+    try {
+        chainIdNum = Number(chainId);
+        if (isNaN(chainIdNum)) {
+            console.error(
+                `Invalid chainId, cannot convert to number: ${chainId}`
+            );
+            return null;
+        }
+    } catch (error) {
+        console.error(`Error converting chainId to number: ${error.message}`);
+        return null;
+    }
+
+    // Check if the network exists in our config
+    if (!CONTRACT_ADDRESSES[chainIdNum]) {
+        console.error(
+            `No contract addresses configured for chainId ${chainIdNum}`
+        );
+        return null;
+    }
+
+    // Special case for CONFIDENTIAL_ESCROW which is dynamically created
+    if (contractType === CONFIDENTIAL_ESCROW) {
+        // For CONFIDENTIAL_ESCROW, we don't need a static address since they're dynamically created
+        // Return a special value to indicate this is a dynamic contract
+        // In createContractFromConfig, we'll check for this value and use the specific address instead
+        return (
+            CONTRACT_ADDRESSES[chainIdNum][contractType] || "DYNAMIC_CONTRACT"
+        );
+    }
+
+    // Check if the contract type exists for this network
+    if (!CONTRACT_ADDRESSES[chainIdNum][contractType]) {
+        console.error(
+            `Contract type ${contractType} not configured for chainId ${chainIdNum}`
+        );
+        return null;
+    }
+
+    return CONTRACT_ADDRESSES[chainIdNum][contractType];
+}
+
+// Update the getContractInfo function to include proper error handling
+export function getContractInfo(contractType, chainId) {
+    if (!contractType) {
+        console.warn("Missing contractType in getContractInfo");
+        return null;
+    }
+
+    if (!chainId) {
+        console.warn("Missing chainId in getContractInfo");
+        return null;
+    }
+
+    // Convert contractType to string for comparison if it's an object
+    const contractTypeKey =
+        typeof contractType === "object" ? contractType.key : contractType;
+
+    console.log(
+        `Getting contract info for type: ${contractTypeKey} on chain: ${chainId}`
+    );
+
+    // Handle CONFIDENTIAL_ESCROW as a special case
+    if (
+        contractTypeKey === "CONFIDENTIAL_ESCROW" ||
+        contractTypeKey === CONFIDENTIAL_ESCROW.key
+    ) {
+        return {
+            contractType: CONFIDENTIAL_ESCROW,
+            abi: confidentialEscrowAbi,
+            address: null, // Address will be provided separately
+        };
+    }
+
+    // For other contract types, use network config
+    const networkConfig = CONTRACT_ADDRESSES[chainId];
+    if (!networkConfig) {
+        console.warn(`No contract addresses configured for chainId ${chainId}`);
+        return null;
+    }
+
+    const contractConfig = networkConfig[contractTypeKey];
+    if (!contractConfig) {
+        console.warn(
+            `No configuration found for contract type: ${contractTypeKey} on chain: ${chainId}`
+        );
+        return null;
+    }
+
+    return contractConfig;
+}
+
+// Add this function to export getTokenAddress
+export function getTokenAddress(tokenSymbol, networkId = 1) {
+    if (!CONTRACT_ADDRESSES[ERC20]) {
+        return null;
+    }
+
+    // If there's a mapping by token symbol
+    if (CONTRACT_ADDRESSES[ERC20][tokenSymbol]) {
+        return CONTRACT_ADDRESSES[ERC20][tokenSymbol][networkId] || null;
+    }
+
+    // Default token address if no specific symbol is provided
+    return CONTRACT_ADDRESSES[ERC20][networkId] || null;
+}
+
+// Define tokens directly in the file
+export const tokens = {
+    84532: [
+        {
+            name: "USDC",
+            address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            decimals: 6,
+            symbol: "USDC",
+        },
+        {
+            name: "EURC",
+            address: "0x08210f9170f89ab7658f0b5e3ff39b0e03c594d4",
+            decimals: 6,
+            symbol: "EURC",
+        },
+        {
+            name: "Verdictor Token",
+            address: "0x2805E68c9af7f4B0B2C9A2De1A216d4180817Ae8",
+            decimals: 18,
+            symbol: "VDT",
+        },
+    ],
+    // Other chains...
 };
 
-/**
- * Helper function to get a contract address for the current network
- * @param {string} contractName - The name of the contract (key in CONTRACT_ADDRESSES)
- * @param {number} chainId - The current chain ID
- * @returns {string|null} The contract address or null if not found
- */
-export const getContractAddress = (contractName, chainId) => {
-  if (CONTRACT_ADDRESSES[contractName] && CONTRACT_ADDRESSES[contractName][chainId]) {
-    return CONTRACT_ADDRESSES[contractName][chainId];
-  }
-  console.error(`No address found for ${contractName} on chain ID ${chainId}`);
-  return null;
-};
+export const getTokens = (chainId) => {
+    // More robust error handling
+    try {
+        // Check if tokens is defined and has the chain ID as a property
+        if (!tokens) {
+            console.error("Tokens object is undefined");
+            return [];
+        }
 
-/**
- * Helper function to get a token address for the current network
- * @param {string} tokenSymbol - The symbol of the token (e.g., "USDC")
- * @param {number} chainId - The current chain ID
- * @returns {string|null} The token address or null if not found
- */
-export const getTokenAddress = (tokenSymbol, chainId) => {
-  if (CONTRACT_ADDRESSES.TOKENS[chainId] && CONTRACT_ADDRESSES.TOKENS[chainId][tokenSymbol]) {
-    return CONTRACT_ADDRESSES.TOKENS[chainId][tokenSymbol];
-  }
-  console.error(`No address found for token ${tokenSymbol} on chain ID ${chainId}`);
-  return null;
-};
+        // If no chainId is provided, use the default
+        const chainIdToUse = chainId || "84532"; // Default to Base Sepolia testnet
 
-/**
- * Helper function to get an ABI by contract name
- * @param {string} contractName - The name of the contract (key in CONTRACT_ABIS)
- * @returns {Array|null} The contract ABI or null if not found
- */
-export const getContractABI = (contractName) => {
-  if (CONTRACT_ABIS[contractName]) {
-    return CONTRACT_ABIS[contractName];
-  }
-  console.error(`No ABI found for ${contractName}`);
-  return null;
+        if (!tokens[chainIdToUse]) {
+            console.error(`No tokens found for chain ID ${chainIdToUse}`);
+            return [];
+        }
+
+        return tokens[chainIdToUse];
+    } catch (error) {
+        console.error("Error in getTokens:", error);
+        return [];
+    }
 };

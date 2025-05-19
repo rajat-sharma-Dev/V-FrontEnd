@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { useWeb3 } from '../hooks/useWeb3';
 import { ethers } from 'ethers';
 import { createContractFromConfig } from '../utils/contractHelpers';
-import { getSellerContracts, getBuyerContracts } from '../utils/escrowHelpers';
 import InteractContract from './InteractContract';
 import SellerInteractContract from './SellerInteractContract';
+import { CONTRACT_FACTORY, CONFIDENTIAL_ESCROW } from '../config/contractTypes';
 import './MyContracts.css';
 
 const MyContracts = ({ onBack, userContracts = [], onContractSelected, role = 'buyer' }) => {
@@ -15,275 +15,227 @@ const MyContracts = ({ onBack, userContracts = [], onContractSelected, role = 'b
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedContract, setSelectedContract] = useState(null);
   const [factoryContract, setFactoryContract] = useState(null);
-
+  
+  // First useEffect just to create the factory contract
   useEffect(() => {
-    const fetchContracts = async () => {
-      if (!isConnected || !account || !chainId || !signer) return;
+    let isMounted = true;
+    
+    const createFactory = async () => {
+      if (!isConnected || !chainId || !account || !signer) return;
       
       try {
-        setLoading(true);
-        setError('');
+        console.log("Creating factory contract instance for chain ID", chainId);
         
-        // Check if we already have contract data passed from parent component
-        if (userContracts.length > 0) {
-          setContracts(userContracts);
-          setLoading(false);
+        // Check if chain ID is valid
+        if (!chainId) {
+          console.error("Chain ID is undefined or invalid");
           return;
         }
         
-        // Create Factory contract instance
-        const factoryContractInstance = createContractFromConfig('CONTRACT_FACTORY', chainId, signer);
-        if (!factoryContractInstance) {
-          throw new Error("Contract factory not available on this network");
-        }
+        // Create the factory contract instance
+        const newFactoryContract = await createContractFromConfig(CONTRACT_FACTORY, chainId, signer);
         
-        // Set the factory contract state
-        setFactoryContract(factoryContractInstance);
-        
-        console.log(`Fetching contracts for ${role} role at address ${account}`);
-        
-        // Temporary: use localStorage to avoid losing data between page refreshes
-        // In a production environment, this would be replaced with blockchain queries
-        const storageKey = role === 'seller' ? `seller-contracts-${account}` : `buyer-contracts-${account}`;
-        const savedContracts = localStorage.getItem(storageKey);
-        
-        if (savedContracts) {
-          const parsedContracts = JSON.parse(savedContracts);
-          setContracts(parsedContracts);
-          setLoading(false);
-          
-          // We still try to fetch from blockchain if possible
-          try {
-            await fetchContractsFromBlockchain(factoryContractInstance);
-          } catch (error) {
-            console.warn("Blockchain fetch attempt failed, using saved contracts", error);
-          }
+        // Verify factory contract was created successfully
+        if (!newFactoryContract) {
+          console.error("Contract instance is null or undefined - check CONTRACT_FACTORY config");
           return;
         }
         
-        // If no saved contracts, attempt blockchain fetch or use mock data as fallback
-        try {
-          await fetchContractsFromBlockchain(factoryContractInstance);
-        } catch (error) {
-          console.warn("Blockchain fetch failed, falling back to mock data", error);
-          console.log(`Reason for blockchain fetch failure: ${error.message}`);
-          generateMockContracts();
+        console.log("Factory contract instance created successfully:", newFactoryContract.target);
+        if (isMounted) {
+          setFactoryContract(newFactoryContract);
         }
-        
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching contracts:", err);
-        setError(`Failed to load your contracts: ${err.message}`);
-        setLoading(false);
-        
-        // As a last resort, generate mock data even on error
-        generateMockContracts();
+      } catch (error) {
+        console.error("Error creating factory contract:", error);
       }
     };
     
-    // Function to fetch contracts from blockchain
-    const fetchContractsFromBlockchain = async (contractInstance) => {
-      // Since the Factory doesn't have direct methods to get seller contracts,
-      // we'll implement a custom approach
-      
-      // In a production environment with a more complete contract:
-      // 1. The Factory contract would have methods like getSellerContracts(address)
-      // 2. We would simply call that method to get all contract addresses
-      
-      // For this implementation, we'll:
-      // 1. Query past events for contract creation where the seller is our account
-      // 2. For each contract address, create a contract instance and fetch details
-      
-      console.log("Querying blockchain for contracts using Factory:", contractInstance.address);
+    createFactory();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [isConnected, chainId, account, signer]);
+  
+  // Separate useEffect for fetching contracts
+  useEffect(() => {
+    if (!factoryContract || !account) return;
+    
+    let isMounted = true;
+    let timeoutId;
+    
+    // Add a cleanup function for resources
+    const cleanupResources = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      isMounted = false;
+    };
+    
+    timeoutId = setTimeout(() => {
+      if (isMounted && loading) {
+        console.log('Contract loading timed out after 15 seconds');
+        setLoading(false);
+        setError('Loading contracts timed out. Please try again later.');
+      }
+    }, 15000); // 15 second timeout
+    
+    const fetchContracts = async () => {
+      if (!isMounted) return; // Cancel if component is unmounted
+      setLoading(true);
+      setContracts([]);
+      setError(null);
       
       try {
-        // Use our helper functions to get contracts based on role
-        const contractAddresses = role === 'seller' 
-          ? await getSellerContracts(contractInstance, account, signer)
-          : await getBuyerContracts(contractInstance, account, signer);
-        
-        if (!contractAddresses || contractAddresses.length === 0) {
-          throw new Error(`No contracts found for ${role} ${account}`);
+        // Directly call the appropriate factory contract method based on role
+        let contractAddresses = [];
+        if (role === 'seller') {
+          console.log(`Fetching contracts for seller: ${account}`);
+          contractAddresses = await factoryContract.getEscrowAddressesOfSeller(account);
+        } else {
+          console.log(`Fetching contracts for buyer: ${account}`);
+          contractAddresses = await factoryContract.getEscrowAddressOfBuyer(account);
         }
         
-        // Process each contract address
-        const fetchedContracts = await Promise.all(
-          contractAddresses.map(async (address, index) => {
-            // Create escrow contract instance
-            const escrowContract = createContractFromConfig(
-              'CONFIDENTIAL_ESCROW', 
+        console.log("Contract addresses returned:", contractAddresses);
+        
+        if (contractAddresses && contractAddresses.length > 0) {
+          // Process the contract addresses to get full contract details
+          const fetchedContracts = await processContractAddresses(contractAddresses);
+          if (isMounted) {
+            setContracts(fetchedContracts);
+            console.log("Contracts fetched successfully:", fetchedContracts);
+          }
+        } else {
+          console.log("No contracts found for this account");
+          if (isMounted) {
+            setContracts([]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching contracts:", error);
+        if (isMounted) {
+          setError(`Failed to fetch contracts: ${error.message}`);
+          setContracts([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    // Process contract addresses to get full contract details
+    const processContractAddresses = async (addresses) => {
+      console.log("Processing contract addresses:", addresses);
+      
+      // Filter for valid contract addresses (should be 42 chars for Ethereum addresses)
+      const validAddresses = addresses.filter(addr => 
+        typeof addr === 'string' && addr.startsWith('0x') && addr.length === 42
+      );
+      
+      if (validAddresses.length === 0) {
+        console.log("No valid contract addresses found after filtering");
+        return [];
+      }
+      
+      // Process each contract address
+      return await Promise.all(
+        validAddresses.map(async (address, index) => {
+          console.log(`Processing contract at address: ${address}`);
+          // Create escrow contract instance
+          try {
+            // Small delay between processing contracts to avoid overwhelming the provider
+            if (index > 0) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            // For CONFIDENTIAL_ESCROW, we always pass the specific address
+            const escrowContract = await createContractFromConfig(
+              CONFIDENTIAL_ESCROW, 
               chainId, 
               signer, 
               address
             );
             
-            // Get basic contract details
-            const seller = await escrowContract.seller();
-            const buyer = await escrowContract.buyer();
-            const totalAmount = await escrowContract.amount();
-            const statusCode = await escrowContract.getStatus();
+            if (!escrowContract) {
+              console.error(`Failed to create contract instance for ${address}`);
+              return {
+                id: index + 1,
+                contractAddress: address,
+                sellerAddress: "Could not load",
+                buyerAddress: "Could not load",
+                price: "0",
+                status: "unknown",
+                conditions: [],
+                createdAt: new Date().toISOString(),
+                error: "Failed to create contract instance"
+              };
+            }
             
-            // Map contract status to our frontend status
+            // Get contract info
+            const contractInfo = await escrowContract.getContractInfo();
+            console.log(`Contract info for ${address}:`, contractInfo);
+            
+            // contractInfo is an array with the following structure:
+            // [0]: buyer address
+            // [1]: seller address
+            // [2]: total amount (price)
+            // [3]: status code (0=pending, 1=active, 2=completed)
+            // [4]: condition keys array
+            
+            // Map status code to readable status
             const statusMap = {
-              0: 'pending',
-              1: 'active',
-              2: 'completed',
-              3: 'disputed',
-              4: 'refunded'
+              0: "pending",
+              1: "active",
+              2: "completed"
             };
             
-            const status = statusMap[statusCode] || 'unknown';
-            
-            // In the real implementation, we would also fetch conditions
-            // For now we'll use placeholders
-            const mockConditions = [
-              { title: "Condition 1", description: "First deliverable", completed: true },
-              { title: "Condition 2", description: "Second deliverable", completed: status === 'completed' }
-            ];
+            // Format price and created date with appropriate error handling
+            const price = contractInfo[2] ? ethers.formatEther(contractInfo[2]) : "0";
+            // Use current date as fallback for createdAt since it's not returned by the contract
+            const createdAt = new Date().toISOString();
             
             return {
               id: index + 1,
               contractAddress: address,
-              sellerAddress: seller,
-              buyerAddress: buyer,
-              price: ethers.formatEther(totalAmount),
-              totalAdvancePayment: ethers.formatEther(totalAmount.div(4)), // Example: 25% advance
-              paymentToken: "Native Token",
-              deliveryDays: 14,
-              timestamp: Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000,
-              status,
-              conditions: mockConditions
+              sellerAddress: contractInfo[1] || "Unknown",
+              buyerAddress: contractInfo[0] || "Unknown",
+              price: price,
+              status: statusMap[Number(contractInfo[3])] || "unknown",
+              conditions: [], // We'll need to fetch conditions separately if needed
+              createdAt: createdAt,
             };
-          })
-        );
-        
-        setContracts(fetchedContracts);
-        
-        // Save to localStorage
-        const storageKey = role === 'seller' ? `seller-contracts-${account}` : `buyer-contracts-${account}`;
-        localStorage.setItem(storageKey, JSON.stringify(fetchedContracts));
-      } catch (error) {
-        console.error("Error fetching blockchain contracts:", error);
-        throw error;
-      }
-    };
-    
-    // Generate mock contracts for development
-    const generateMockContracts = () => {
-      // These mock contracts are role-specific (seller vs buyer)
-      const mockContracts = role === 'seller' ? [
-        {
-          id: 1,
-          buyerAddress: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
-          sellerAddress: account,
-          price: "0.5",
-          totalAdvancePayment: "0.1",
-          paymentToken: "Native Token",
-          deliveryDays: 14,
-          contractAddress: "0x" + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
-          status: "active",
-          conditions: [
-            { title: "Homepage Design", description: "Create wireframes for homepage", completed: true },
-            { title: "About Us Page", description: "Design and implement About Us page", completed: false },
-            { title: "Contact Form", description: "Create a functional contact form", completed: false }
-          ]
-        },
-        {
-          id: 2,
-          buyerAddress: "0x2546BcD3c84621e976D8185a91A922aE77ECEc30",
-          sellerAddress: account,
-          price: "1.2",
-          totalAdvancePayment: "0.4",
-          paymentToken: "USDC",
-          deliveryDays: 5,
-          contractAddress: "0x" + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000, // 2 days ago
-          status: "completed",
-          conditions: [
-            { title: "Code Audit", description: "Review smart contract code", completed: true },
-            { title: "Security Analysis", description: "Perform security analysis", completed: true },
-            { title: "Final Report", description: "Deliver comprehensive report", completed: true }
-          ]
-        },
-        {
-          id: 3,
-          buyerAddress: "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
-          sellerAddress: account,
-          price: "0.8",
-          totalAdvancePayment: "0.2",
-          paymentToken: "Native Token",
-          deliveryDays: 10,
-          contractAddress: "0x" + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          timestamp: Date.now() - 14 * 24 * 60 * 60 * 1000, // 14 days ago
-          status: "disputed",
-          conditions: [
-            { title: "Concept Design", description: "Create concept designs for NFTs", completed: true },
-            { title: "Initial Artwork", description: "Create rough drafts for 10 NFTs", completed: true },
-            { title: "Final Deliverables", description: "Deliver high-resolution artwork", completed: false }
-          ]
-        }
-      ] : [
-        // Buyer mock contracts
-        {
-          id: 1,
-          sellerAddress: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
-          buyerAddress: account,
-          price: "0.5",
-          totalAdvancePayment: "0.1",
-          paymentToken: "Native Token",
-          deliveryDays: 14,
-          contractAddress: "0x" + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000,
-          status: "active",
-          conditions: [
-            { title: "Homepage Design", description: "Create wireframes for homepage", completed: true },
-            { title: "About Us Page", description: "Design and implement About Us page", completed: false },
-            { title: "Contact Form", description: "Create a functional contact form", completed: false }
-          ]
-        },
-        {
-          id: 2,
-          sellerAddress: "0x2546BcD3c84621e976D8185a91A922aE77ECEc30",
-          buyerAddress: account,
-          price: "1.2",
-          totalAdvancePayment: "0.4",
-          paymentToken: "USDC",
-          deliveryDays: 5,
-          contractAddress: "0x" + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0'),
-          timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
-          status: "completed",
-          conditions: [
-            { title: "Code Audit", description: "Review smart contract code", completed: true },
-            { title: "Security Analysis", description: "Perform security analysis", completed: true },
-            { title: "Final Report", description: "Deliver comprehensive report", completed: true }
-          ]
-        }
-      ];
-      
-      setContracts(mockContracts);
-      
-      // Save to localStorage for persistence
-      const storageKey = role === 'seller' ? `seller-contracts-${account}` : `buyer-contracts-${account}`;
-      localStorage.setItem(storageKey, JSON.stringify(mockContracts));
+          } catch (error) {
+            console.error(`Error processing contract at ${address}:`, error);
+            return {
+              id: index + 1,
+              contractAddress: address,
+              sellerAddress: "Error loading",
+              buyerAddress: "Error loading",
+              price: "0",
+              status: "error",
+              conditions: [],
+              createdAt: new Date().toISOString(),
+              error: error.message
+            };
+          }
+        })
+      );
     };
     
     fetchContracts();
-  }, [isConnected, account, chainId, userContracts, role, signer]);
-
-  // Function to suppress linter warnings for unused variables
-  // in commented-out code blocks
-  const suppressUnusedWarning = () => {
-    // eslint-disable-next-line no-unused-vars
-    const handleNewContract = async (seller, buyer, contractAddress, event) => {
-      // Implementation when needed
+    
+    return () => {
+      cleanupResources();
     };
-  };
-  suppressUnusedWarning();
+  }, [factoryContract, account, role, chainId, signer]); // Only depend on these essential dependencies
 
-  // Set up WebSocket listener for new contracts
+  // Set up WebSocket listener for new contracts - separated from the main fetch effect
   useEffect(() => {
     if (!isConnected || !account || !chainId || !signer || !factoryContract) return;
+    
+    console.log("Setting up contract event listeners...");
     
     // This function is currently unused but will be used when the event listener is activated
     // eslint-disable-next-line no-unused-vars
@@ -298,15 +250,14 @@ const MyContracts = ({ onBack, userContracts = [], onContractSelected, role = 'b
         try {
           // Create escrow contract instance to get details
           const escrowContract = createContractFromConfig(
-            'CONFIDENTIAL_ESCROW', 
+            CONFIDENTIAL_ESCROW, 
             chainId, 
             signer, 
             contractAddress
           );
           
           // Get contract details
-          const { getContractDetails } = await import('../utils/escrowHelpers');
-          const contractDetails = await getContractDetails(escrowContract);
+          const contractInfo = await escrowContract.getContractInfo();
           
           // Add to contracts state
           setContracts(prevContracts => {
@@ -320,18 +271,16 @@ const MyContracts = ({ onBack, userContracts = [], onContractSelected, role = 'b
             // Add new contract
             const newContract = {
               id: prevContracts.length + 1,
-              ...contractDetails
+              contractAddress: contractAddress,
+              sellerAddress: contractInfo.seller,
+              buyerAddress: contractInfo.buyer,
+              price: ethers.formatEther(contractInfo.price),
+              status: contractInfo.status,
+              conditions: contractInfo.conditions || [],
+              createdAt: new Date(contractInfo.createdAt * 1000).toISOString(),
             };
             
-            // Save updated list to localStorage
-            const storageKey = role === 'seller' ? 
-              `seller-contracts-${account}` : 
-              `buyer-contracts-${account}`;
-            
-            const updatedContracts = [...prevContracts, newContract];
-            localStorage.setItem(storageKey, JSON.stringify(updatedContracts));
-            
-            return updatedContracts;
+            return [...prevContracts, newContract];
           });
         } catch (error) {
           console.error("Error handling new contract event:", error);
@@ -355,7 +304,7 @@ const MyContracts = ({ onBack, userContracts = [], onContractSelected, role = 'b
       console.error("Error setting up contract event listener:", error);
     }
     */
-  }, [isConnected, account, chainId, signer, factoryContract, role]);
+  }, [factoryContract]); // Only re-run when factoryContract changes
 
   // Filter contracts based on selected filter
   const filteredContracts = contracts.filter(contract => {
@@ -364,16 +313,18 @@ const MyContracts = ({ onBack, userContracts = [], onContractSelected, role = 'b
   });
   
   const handleViewContract = (contract) => {
-    setSelectedContract(contract);
+    // Set the contractType to CONFIDENTIAL_ESCROW when selecting a contract for interaction
+    const contractWithType = {
+      ...contract,
+      contractType: CONFIDENTIAL_ESCROW
+    };
+    
+    setSelectedContract(contractWithType);
     
     // Also call the external handler if provided
     if (onContractSelected) {
-      onContractSelected(contract);
+      onContractSelected(contractWithType);
     }
-  };
-  
-  const handleBackFromInteract = () => {
-    setSelectedContract(null);
   };
   
   // Format timestamp with enhanced details
@@ -412,7 +363,7 @@ const MyContracts = ({ onBack, userContracts = [], onContractSelected, role = 'b
   // Format address for display
   const formatAddress = (address) => {
     if (!address) return "Unknown";
-    return `${address.substring(0, 6)}...${address.substring(38)}`;
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
   
   // Calculate completion percentage
@@ -512,205 +463,228 @@ const MyContracts = ({ onBack, userContracts = [], onContractSelected, role = 'b
     };
   }, [contracts]);
   
+  const handleSelectContract = async (contractAddress) => {
+    console.log("Selected contract address:", contractAddress);
+    
+    try {
+      // Pass the contract information to InteractContract
+      // Send contract address and type, but let InteractContract handle instance creation
+      setSelectedContract({
+        contractAddress,
+        contractType: CONFIDENTIAL_ESCROW, // Use the constant from contractTypes.js
+      });
+    } catch (error) {
+      console.error("Error selecting contract:", error);
+      setSelectedContract(null);
+    }
+  };
+  
   return (
-    <div className="my-contracts">
-      {selectedContract ? (
+    <div className="contracts-container">
+      <div className="contracts-header">
+        <h2>{role === 'seller' ? 'Your Selling Contracts' : 'Your Buying Contracts'}</h2>
+        <button className="back-button" onClick={onBack}>Back</button>
+      </div>
+      
+      {loading ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading your contracts... This may take a moment.</p>
+          <p className="loading-hint">If this takes too long, check your wallet connection and try again.</p>
+        </div>
+      ) : error ? (
+        <div className="error-container">
+          <h3>Error Loading Contracts</h3>
+          <p>{error}</p>
+          <button 
+            className="retry-button"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
+      ) : selectedContract ? (
         role === 'seller' ? (
           <SellerInteractContract 
-            contract={selectedContract} 
-            onBack={handleBackFromInteract}
+            contractDetails={selectedContract} 
+            onBack={() => setSelectedContract(null)}
+            onContractUpdated={(updatedContract) => {
+              // Update the contract in the list when it changes
+              const updatedContracts = contracts.map(c => 
+                c.id === updatedContract.id ? updatedContract : c
+              );
+              setContracts(updatedContracts);
+              setSelectedContract(null);
+            }}
           />
         ) : (
           <InteractContract 
             contract={selectedContract} 
-            onBack={handleBackFromInteract}
+            onBack={() => setSelectedContract(null)} 
+            onContractUpdated={(updatedContract) => {
+              // Update the contract in the list when it changes
+              const updatedContracts = contracts.map(c => 
+                c.id === updatedContract.id ? updatedContract : c
+              );
+              setContracts(updatedContracts);
+              setSelectedContract(null);
+            }}
           />
         )
       ) : (
-        <>
-          <div className="section-header">
-            <button onClick={onBack} className="back-button">
-              &larr; Back
-            </button>
-            <h2>My {role === 'seller' ? 'Seller' : 'Buyer'} Contracts</h2>
-            <p className="section-description">
-              {role === 'seller' 
-                ? "Manage contracts where you are providing services as a seller"
-                : "Manage contracts where you are receiving services as a buyer"
-              }
-            </p>
+        <div className="contracts-main-content">
+          {/* Contract summary cards */}
+          <div className="contracts-summary">
+            <div className="summary-card">
+              <div className="summary-title">Total Contracts</div>
+              <div className="summary-value">{contracts.length}</div>
+            </div>
+            
+            <div className="summary-card">
+              <div className="summary-title">Active Contracts</div>
+              <div className="summary-value">
+                {contracts.filter(c => c.status === 'active').length}
+              </div>
+            </div>
+            
+            <div className="summary-card">
+              <div className="summary-title">Completed</div>
+              <div className="summary-value">
+                {contracts.filter(c => c.status === 'completed').length}
+              </div>
+            </div>
+            
+            <div className="summary-card">
+              <div className="summary-title">Completion Rate</div>
+              <div className="summary-value">
+                {contractSummary.completionRate.toFixed(1)}%
+              </div>
+            </div>
           </div>
           
-          {!isConnected ? (
-            <div className="connect-prompt">
-              <p>Please connect your wallet to view your contracts.</p>
+          <div className="contract-filters">
+            <button 
+              className={`filter-button ${selectedFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('all')}
+            >
+              All
+            </button>
+            <button 
+              className={`filter-button ${selectedFilter === 'active' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('active')}
+            >
+              In Progress
+            </button>
+            <button 
+              className={`filter-button ${selectedFilter === 'completed' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('completed')}
+            >
+              Completed
+            </button>
+            <button 
+              className={`filter-button ${selectedFilter === 'pending' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('pending')}
+            >
+              Pending
+            </button>
+            <button 
+              className={`filter-button ${selectedFilter === 'disputed' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('disputed')}
+            >
+              Disputed
+            </button>
+          </div>
+          
+          {filteredContracts.length === 0 ? (
+            <div className="empty-contracts">
+              <p>No contracts found with the selected filter.</p>
+              {contracts.length === 0 && (
+                <div className="no-contracts-message">
+                  <p>You don't have any contracts yet.</p>
+                  {role === 'buyer' && (
+                    <button className="create-contract-button" onClick={() => onBack()}>
+                      Create a New Contract
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-          ) : loading ? (
-            <div className="loading-spinner">Loading contracts...</div>
-          ) : error ? (
-            <div className="error-message">{error}</div>
           ) : (
-            <>
-              <div className="contract-summary">
-                <div className={`summary-item ${contracts.length > 0 ? 'active' : ''}`}>
-                  <div className="summary-label">Total Contracts</div>
-                  <div className="summary-value">{contractSummary.total}</div>
-                </div>
-                <div className={`summary-item ${contractSummary.active > 0 ? 'active' : ''}`}>
-                  <div className="summary-label">Active Contracts</div>
-                  <div className="summary-value">{contractSummary.active}</div>
-                </div>
-                <div className={`summary-item ${contractSummary.completed > 0 ? 'completed' : ''}`}>
-                  <div className="summary-label">Completed Contracts</div>
-                  <div className="summary-value">{contractSummary.completed}</div>
-                </div>
-                <div className={`summary-item ${contractSummary.disputed > 0 ? 'disputed' : ''}`}>
-                  <div className="summary-label">Disputed Contracts</div>
-                  <div className="summary-value">{contractSummary.disputed}</div>
-                </div>
-                <div className={`summary-item ${contractSummary.pending > 0 ? 'pending' : ''}`}>
-                  <div className="summary-label">Pending Contracts</div>
-                  <div className="summary-value">{contractSummary.pending}</div>
-                </div>
-                <div className="summary-item">
-                  <div className="summary-label">Total Value</div>
-                  <div className="summary-value">
-                    {parseFloat(ethers.formatEther(contractSummary.totalValue.toString())).toFixed(4)} ETH
+            <div className="contracts-list">
+              {filteredContracts.map((contract) => (
+                <div key={contract.id || contract.contractAddress} className={`contract-card ${contract.status || ''}`}>
+                  <div className="contract-header">
+                    <div className="contract-id">Contract #{contract.id || contract.contractAddress.substring(0, 6)}</div>
+                    {contract.status && (
+                      <span className={`status-badge ${contract.status}`}>
+                        {contract.status.charAt(0).toUpperCase() + contract.status.slice(1)}
+                      </span>
+                    )}
                   </div>
-                </div>
-                <div className="summary-item">
-                  <div className="summary-label">Average Value</div>
-                  <div className="summary-value">
-                    {parseFloat(ethers.formatEther(contractSummary.averageValue.toString())).toFixed(4)} ETH
-                  </div>
-                </div>
-                <div className="summary-item">
-                  <div className="summary-label">Largest Contract</div>
-                  <div className="summary-value">
-                    {parseFloat(ethers.formatEther(contractSummary.largestContract.toString())).toFixed(4)} ETH
-                  </div>
-                </div>
-                <div className="summary-item">
-                  <div className="summary-label">Completion Rate</div>
-                  <div className="summary-value">
-                    {contractSummary.completionRate.toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-              
-              <div className="contract-filters">
-                <button 
-                  className={`filter-button ${selectedFilter === 'all' ? 'active' : ''}`}
-                  onClick={() => setSelectedFilter('all')}
-                >
-                  All
-                </button>
-                <button 
-                  className={`filter-button ${selectedFilter === 'active' ? 'active' : ''}`}
-                  onClick={() => setSelectedFilter('active')}
-                >
-                  In Progress
-                </button>
-                <button 
-                  className={`filter-button ${selectedFilter === 'completed' ? 'active' : ''}`}
-                  onClick={() => setSelectedFilter('completed')}
-                >
-                  Completed
-                </button>
-                <button 
-                  className={`filter-button ${selectedFilter === 'pending' ? 'active' : ''}`}
-                  onClick={() => setSelectedFilter('pending')}
-                >
-                  Pending
-                </button>
-                <button 
-                  className={`filter-button ${selectedFilter === 'disputed' ? 'active' : ''}`}
-                  onClick={() => setSelectedFilter('disputed')}
-                >
-                  Disputed
-                </button>
-              </div>
-              
-              {filteredContracts.length === 0 ? (
-                <div className="empty-contracts">
-                  <p>No contracts found with the selected filter.</p>
-                </div>
-              ) : (
-                <div className="contracts-list">
-                  {filteredContracts.map((contract) => (
-                    <div key={contract.id || contract.contractAddress} className={`contract-card ${contract.status || ''}`}>
-                      <div className="contract-header">
-                        <div className="contract-id">Contract #{contract.id || contract.contractAddress.substring(0, 6)}</div>
-                        {contract.status && (
-                          <span className={`status-badge ${contract.status}`}>
-                            {contract.status.charAt(0).toUpperCase() + contract.status.slice(1)}
+                  
+                  <div className="contract-details">
+                    <div className="detail-row">
+                      <div className="detail-label">{role === 'seller' ? 'Buyer:' : 'Seller:'}</div>
+                      <div className="detail-value address">
+                        {formatAddress(role === 'seller' ? contract.buyerAddress : contract.sellerAddress)}
+                      </div>
+                    </div>
+                    
+                    <div className="detail-row">
+                      <div className="detail-label">Confirmations:</div>
+                      <div className="detail-value confirmations">
+                        <span className="confirmation-count">
+                          {contract.conditions ? 
+                            `${contract.conditions.filter(c => c.completed).length}/${contract.conditions.length}` : 
+                            "0/0"}
+                          {contract.conditions && contract.conditions.length > 0 && (
+                            <span className="percentage">
+                              {` (${calculateCompletion(contract.conditions)}%)`}
+                            </span>
+                          )}
+                        </span>
+                        <div className="progress-bar">
+                          <div 
+                            className="progress" 
+                            style={{ width: `${calculateCompletion(contract.conditions)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="detail-row">
+                      <div className="detail-label">Total Amount:</div>
+                      <div className="detail-value amount">
+                        {contract.price} {contract.tokenSymbol || contract.paymentTokenSymbol || 
+                        (contract.paymentToken !== "0x1111111111111111111111111111111111111111" ? 
+                          contract.paymentToken : "")}
+                        {contract.totalAdvancePayment && parseFloat(contract.totalAdvancePayment) > 0 && (
+                          <span className="advance-payment">
+                            (Advance: {contract.totalAdvancePayment})
                           </span>
                         )}
                       </div>
-                      
-                      <div className="contract-details">
-                        <div className="detail-row">
-                          <div className="detail-label">{role === 'seller' ? 'Buyer:' : 'Seller:'}</div>
-                          <div className="detail-value address">
-                            {formatAddress(role === 'seller' ? contract.buyerAddress : contract.sellerAddress)}
-                          </div>
-                        </div>
-                        
-                        <div className="detail-row">
-                          <div className="detail-label">Confirmations:</div>
-                          <div className="detail-value confirmations">
-                            <span className="confirmation-count">
-                              {contract.conditions ? 
-                                `${contract.conditions.filter(c => c.completed).length}/${contract.conditions.length}` : 
-                                "0/0"}
-                              {contract.conditions && contract.conditions.length > 0 && (
-                                <span className="percentage">
-                                  {` (${calculateCompletion(contract.conditions)}%)`}
-                                </span>
-                              )}
-                            </span>
-                            <div className="progress-bar">
-                              <div 
-                                className="progress" 
-                                style={{ width: `${calculateCompletion(contract.conditions)}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="detail-row">
-                          <div className="detail-label">Total Amount:</div>
-                          <div className="detail-value amount">
-                            {contract.price} {contract.paymentToken}
-                            {contract.totalAdvancePayment && parseFloat(contract.totalAdvancePayment) > 0 && (
-                              <span className="advance-payment">
-                                (Advance: {contract.totalAdvancePayment})
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="detail-row">
-                          <div className="detail-label">Created:</div>
-                          <div className="detail-value">{formatDate(contract.timestamp)}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="contract-actions">
-                        <button 
-                          onClick={() => handleViewContract(contract)} 
-                          className="interact-button"
-                        >
-                          Interact
-                        </button>
-                      </div>
                     </div>
-                  ))}
+                    
+                    <div className="detail-row">
+                      <div className="detail-label">Created:</div>
+                      <div className="detail-value">{formatDate(contract.createdAt)}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="contract-actions">
+                    <button 
+                      onClick={() => handleViewContract(contract)} 
+                      className="interact-button"
+                    >
+                      Interact
+                    </button>
+                  </div>
                 </div>
-              )}
-            </>
+              ))}
+            </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

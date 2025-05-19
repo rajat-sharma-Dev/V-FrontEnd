@@ -495,11 +495,13 @@ const ContractDetails = ({ contract, onClose, userRole }) => {
         // In real blockchain integration, we would fetch updated contract data here
         // Example:
         /*
-        const buyer = await escrowContract.buyer();
-        const seller = await escrowContract.seller();
-        const status = await escrowContract.getStatus();
-        const conditions = await escrowContract.getConditions();
-        const dispute = await escrowContract.getDisputeInfo();
+        // Use getContractInfo to get all basic info including status
+        const contractInfo = await escrowContract.getContractInfo();
+        const buyer = contractInfo[0]; // buyer is at index 0
+        const seller = contractInfo[1]; // seller is at index 1
+        const amount = contractInfo[2]; // total amount is at index 2
+        const status = contractInfo[3]; // status is at index 3
+        const conditionKeys = contractInfo[4]; // condition keys is at index 4
         
         // Update contract state with new data
         */
@@ -562,17 +564,40 @@ const ContractDetails = ({ contract, onClose, userRole }) => {
           
           <div className="detail-row">
             <span className="detail-label">Contract Address:</span>
-            <span className="detail-value address-value">{contract.contractAddress}</span>
+            <span className="detail-value address-value">{contract.contractAddress || "N/A"}</span>
           </div>
           
           <div className="detail-row">
             <span className="detail-label">Price:</span>
-            <span className="detail-value">{contract.price} {contract.paymentToken}</span>
+            <span className="detail-value">{contract.price} {contract.paymentTokenSymbol || 
+              (contract.paymentToken !== "0x1111111111111111111111111111111111111111" ? 
+                contract.paymentToken : "")}</span>
+          </div>
+          
+          <div className="detail-row">
+            <span className="detail-label">Payment Token:</span>
+            <span className="detail-value token-value">
+              {contract.tokenSymbol || "Unknown Token"} 
+              {contract.tokenAddress && (
+                <span className="token-address-detail">
+                  ({formatAddressDisplay(contract.tokenAddress)})
+                </span>
+              )}
+            </span>
           </div>
           
           <div className="detail-row">
             <span className="detail-label">Advance Payment:</span>
-            <span className="detail-value">{contract.totalAdvancePayment} {contract.paymentToken}</span>
+            <span className="detail-value">{contract.totalAdvancePayment} {contract.paymentTokenSymbol || 
+              (contract.paymentToken !== "0x1111111111111111111111111111111111111111" ? 
+                contract.paymentToken : "")}</span>
+          </div>
+          
+          <div className="detail-row">
+            <span className="detail-label">Network:</span>
+            <span className="detail-value network-value">
+              {chainId === 8453 ? "Base Mainnet" : chainId === 84532 ? "Base Sepolia" : `Chain ID: ${chainId}`}
+            </span>
           </div>
           
           <div className="detail-row">
@@ -614,7 +639,9 @@ const ContractDetails = ({ contract, onClose, userRole }) => {
                 <p className="condition-description">{condition.description}</p>
                 {condition.advancePayment && (
                   <div className="advance-payment-info">
-                    <span>Advance Payment: {condition.advanceAmount} {contract.paymentToken}</span>
+                    <span>Advance Payment: {condition.advanceAmount} {contract.paymentTokenSymbol || 
+                      (contract.paymentToken !== "0x1111111111111111111111111111111111111111" ? 
+                        contract.paymentToken : "")}</span>
                   </div>
                 )}
               </div>

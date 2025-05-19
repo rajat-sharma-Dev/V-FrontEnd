@@ -199,15 +199,35 @@
 
 .detail-value {
   flex: 1;
+  font-weight: 500;
   color: white;
 }
 
 .detail-value.address {
   font-family: monospace;
   background: rgba(0, 0, 0, 0.2);
-  padding: 3px 6px;
+  padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.85rem;
+  display: inline-block;
+}
+
+.detail-value.token-info {
+  color: #8247e5;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.token-address-mini {
+  font-family: monospace;
+  font-size: 0.75rem;
+  background: rgba(130, 71, 229, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .detail-value.amount {
@@ -338,4 +358,101 @@
     width: 100%;
     margin-bottom: 3px;
   }
+}
+
+/* Loading styles */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  min-height: 200px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.loading-hint {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error styles */
+.error-container {
+  padding: 2rem;
+  background-color: rgba(255, 235, 235, 0.9);
+  border-radius: 8px;
+  border-left: 4px solid #e74c3c;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.error-container h3 {
+  color: #e74c3c;
+  margin-top: 0;
+}
+
+.retry-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.retry-button:hover {
+  background-color: #2980b9;
+}
+
+/* Empty state styles */
+.empty-contracts {
+  padding: 2rem;
+  text-align: center;
+  background-color: rgba(245, 245, 245, 0.8);
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+  margin: 1rem 0;
+}
+
+.no-contracts-message {
+  margin-top: 1rem;
+}
+
+.create-contract-button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.create-contract-button:hover {
+  background-color: #219653;
 }

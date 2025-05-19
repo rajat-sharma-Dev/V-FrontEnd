@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWeb3 } from '../hooks/useWeb3';
 import { ethers } from 'ethers';
 import { createContractFromConfig } from '../utils/contractHelpers';
+import { CONTRACT_ADDRESSES, tokens } from '../config/contracts';
+import { CONTRACT_FACTORY } from '../config/contractTypes';
 import './CreateContract.css';
 
 const CreateContract = ({ onBack, onContractCreated }) => {
@@ -21,6 +23,44 @@ const CreateContract = ({ onBack, onContractCreated }) => {
   const [deliveryDays, setDeliveryDays] = useState(7);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [availableTokens, setAvailableTokens] = useState([]);
+
+  // Get available tokens based on the chain ID
+  useEffect(() => {
+    const getTokens = () => {
+      if (!chainId) return [];
+      
+      const tokensArray = [];
+      // Add native token (ETH) as first option
+      tokensArray.push({ 
+        symbol: 'Native Token (ETH)', 
+        address: 'native' 
+      });
+      
+      // Add tokens from contracts.js using the tokens object for the current chain
+      try {
+        const chainTokens = tokens[chainId] || [];
+        chainTokens.forEach(token => {
+          tokensArray.push({
+            symbol: token.symbol,
+            address: token.address
+          });
+        });
+      } catch (error) {
+        console.error("Error getting tokens for chain:", error);
+      }
+      
+      return tokensArray;
+    };
+    
+    const tokensForChain = getTokens();
+    setAvailableTokens(tokensForChain);
+    
+    // If the current selected token is not available on this chain, reset to native
+    if (paymentToken !== 'native' && !tokensForChain.find(t => t.address === paymentToken)) {
+      setPaymentToken('native');
+    }
+  }, [chainId, paymentToken]);
 
   // Handle changes in the number of conditions
   const handleNumberOfConditionsChange = (e) => {
@@ -56,6 +96,11 @@ const CreateContract = ({ onBack, onContractCreated }) => {
   
   // Toggle advance payment checkbox
   const toggleAdvancePayment = (index) => {
+    // Don't allow advance payments for conditions after the locked condition
+    if (lockedConditionIndex !== null && index > lockedConditionIndex) {
+      return;
+    }
+    
     const newConditions = [...conditions];
     newConditions[index] = { 
       ...newConditions[index], 
@@ -71,9 +116,27 @@ const CreateContract = ({ onBack, onContractCreated }) => {
     if (lockedConditionIndex === index) {
       // Allow unlocking the currently locked condition
       setLockedConditionIndex(null);
-    } else if (lockedConditionIndex === null) {
-      // Lock a new condition if nothing is currently locked
+    } else {
+      // Lock a new condition, unlocking the previous one if any
       setLockedConditionIndex(index);
+      
+      // If this condition is locked, we must disable advance payments on all subsequent conditions
+      if (index < conditions.length - 1) {
+        const newConditions = [...conditions];
+        
+        // Disable advance payments for all conditions after the locked one
+        for (let i = index + 1; i < newConditions.length; i++) {
+          if (newConditions[i].advancePayment) {
+            newConditions[i] = {
+              ...newConditions[i],
+              advancePayment: false,
+              advanceAmount: '0'
+            };
+          }
+        }
+        
+        setConditions(newConditions);
+      }
     }
   };
   
@@ -126,23 +189,34 @@ const CreateContract = ({ onBack, onContractCreated }) => {
       return;
     }
     
-    // Ensure a condition is locked before submission
-    if (lockedConditionIndex === null) {
-      setError("Please lock at least one condition before submitting");
-      return;
-    }
+    // Lock condition is now optional
     
     try {
       setLoading(true);
       setError('');
       
       // Create contract instance
-      const contractFactory = createContractFromConfig('CONTRACT_FACTORY', chainId, signer);
+      const contractFactory = await createContractFromConfig(CONTRACT_FACTORY, chainId, signer);
       
+      console.log("Contract Factory Instance:", contractFactory);
+      
+      // Check if contract instance was created
       if (!contractFactory) {
+        console.error("Failed to create contract factory instance");
         setError("Contract factory not available on this network");
         setLoading(false);
         return;
+      }
+      
+      // Log contract address and available methods
+      console.log("Contract address:", contractFactory.target);
+      
+      // Check if the contract interface and functions are available
+      if (contractFactory.interface) {
+        const availableFunctions = contractFactory.interface.fragments
+          .filter(fragment => fragment.type === 'function')
+          .map(fragment => fragment.name);
+        console.log("Available contract functions:", availableFunctions);
       }
       
       // Convert price to wei
@@ -167,35 +241,48 @@ const CreateContract = ({ onBack, onContractCreated }) => {
       // Get the token address or use native ETH
       const tokenAddr = paymentToken === 'native' ? ethers.ZeroAddress : paymentToken;
       
+      // Get the token symbol
+      const tokenSymbol = paymentToken === 'native' 
+        ? 'ETH' 
+        : availableTokens.find(t => t.address === paymentToken)?.symbol || '';
+      
       console.log("Creating contract with params:", {
         seller: sellerAddress,
         buyer: account, // Current connected wallet
         amount: priceInWei.toString(),
         tokenAddress: tokenAddr,
+        tokenSymbol,
         governor: governorAddress,
         conditions: contractConditions,
         deadline: deadlineInSeconds
       });
       
       // Create the contract using the Factory contract
-      const tx = await contractFactory.createContract(
-        sellerAddress,     // _seller
-        account,           // _buyer (current user)
-        priceInWei,        // _amount
-        tokenAddr,         // _tokenAddress
-        governorAddress,   // _governor
-        contractConditions, // _conditions
-        deadlineInSeconds  // _deadline
-      );
-      
-      console.log("Transaction sent:", tx.hash);
-      const receipt = await tx.wait();
-      console.log("Transaction confirmed:", receipt);
-      
-      // Get the escrow contract address
-      // Note: The Factory contract doesn't emit an event with the address, so we need to get it from the mapping
-      // For now we'll simulate it since we can't call these mappings directly from the UI
-      const contractAddress = "0x" + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0');
+      try {
+        const tx = await contractFactory.createContract(
+          sellerAddress,     // _seller
+          account,           // _buyer (current user)
+          priceInWei,        // _amount
+          tokenAddr,         // _tokenAddress
+          governorAddress,   // _governor
+          contractConditions, // _conditions
+          deadlineInSeconds  // _deadline
+        );
+        
+        console.log("Transaction sent:", tx.hash);
+        const receipt = await tx.wait();
+        console.log("Transaction confirmed:", receipt);
+        
+        // Get the escrow contract address
+        // Note: The Factory contract doesn't emit an event with the address, so we need to get it from the mapping
+        // For now we'll simulate it since we can't call these mappings directly from the UI
+        const contractAddress = "0x" + Math.floor(Math.random() * 10**40).toString(16).padStart(40, '0');
+      } catch (contractError) {
+        console.error("Error calling createContract function:", contractError);
+        setError(`Contract creation failed: ${contractError.message || "Unknown error"}`);
+        setLoading(false);
+        return;
+      }
       
       setLoading(false);
       
@@ -212,35 +299,22 @@ const CreateContract = ({ onBack, onContractCreated }) => {
           completed: false
         })),
         totalAdvancePayment: totalAdvance.toString(),
-        paymentToken: paymentToken === 'native' ? 'Native Token' : paymentToken,
+        paymentToken: tokenAddr,
+        tokenAddress: tokenAddr,
+        tokenSymbol: paymentToken === 'native' 
+          ? 'ETH' 
+          : availableTokens.find(t => t.address === paymentToken)?.symbol || '',
+        paymentTokenSymbol: paymentToken === 'native' 
+          ? 'ETH' 
+          : availableTokens.find(t => t.address === paymentToken)?.symbol || '',
         deliveryDays,
         contractAddress,
         timestamp: Date.now(),
-        status: 'active',
+        status: 'pending',
         deadline: new Date(Date.now() + (deliveryDays * 86400 * 1000)).toISOString()
       };
       
-      // Save to localStorage for ViewContracts component
-      const existingContracts = localStorage.getItem('userContracts');
-      let contracts = [];
-      
-      if (existingContracts) {
-        try {
-          contracts = JSON.parse(existingContracts);
-        } catch (e) {
-          console.error("Error parsing stored contracts:", e);
-          contracts = [];
-        }
-      }
-      
-      // Add the new contract
-      contracts.push({
-        ...newContract,
-        id: contracts.length + 1
-      });
-      
-      // Save back to localStorage
-      localStorage.setItem('userContracts', JSON.stringify(contracts));
+      // No need to save to localStorage anymore as contracts will be fetched directly from the blockchain
       
       if (onContractCreated) {
         onContractCreated(newContract);
@@ -362,9 +436,15 @@ const CreateContract = ({ onBack, onContractCreated }) => {
                         type="checkbox"
                         checked={condition.advancePayment}
                         onChange={() => toggleAdvancePayment(index)}
-                        disabled={isDisabled || isThisConditionLocked}
+                        disabled={isDisabled || isThisConditionLocked || 
+                          (lockedConditionIndex !== null && index > lockedConditionIndex)}
                       />
                       <label htmlFor={`advance-checkbox-${index}`}>Advance Payment</label>
+                      {lockedConditionIndex !== null && index > lockedConditionIndex && (
+                        <span className="hint-text">
+                          Advance payments not allowed after locked condition
+                        </span>
+                      )}
                     </div>
                     
                     {condition.advancePayment && (
@@ -422,12 +502,19 @@ const CreateContract = ({ onBack, onContractCreated }) => {
               value={paymentToken}
               onChange={(e) => setPaymentToken(e.target.value)}
             >
-              <option value="native">Native Token (ETH/MATIC)</option>
-              <option value="0x1111111111111111111111111111111111111111">USDC</option>
-              <option value="0x2222222222222222222222222222222222222222">USDT</option>
-              <option value="0x3333333333333333333333333333333333333333">DAI</option>
+              {availableTokens.map((token, index) => (
+                <option key={index} value={token.address}>
+                  {token.symbol}
+                </option>
+              ))}
             </select>
-            <div className="field-helper">Select which token to use for payment</div>
+            <div className="field-helper">
+              {chainId === 8453 
+                ? "Select a payment token from Base Mainnet" 
+                : chainId === 84532 
+                  ? "Select a payment token from Base Sepolia testnet" 
+                  : "Connect to a supported network to see available tokens"}
+            </div>
           </div>
           
           <div className="form-group">

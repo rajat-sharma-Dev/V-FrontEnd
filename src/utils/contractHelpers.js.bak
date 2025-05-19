@@ -25,7 +25,7 @@ export const createContractInstance = (
 
 /**
  * Create a contract instance using configuration from contracts.js
- * @param {string} contractType - The type of the contract (e.g., "CONTRACT_FACTORY")
+ * @param {string} contractName - The name of the contract (e.g., "MARKETPLACE")
  * @param {number} chainId - The current chain ID
  * @param {ethers.Signer} signer - The signer
  * @param {string} [specificAddress] - Optional specific contract address to use instead of the default
@@ -34,83 +34,53 @@ export const createContractInstance = (
 export const createContractFromConfig = async (
     contractType,
     chainId,
-    signer,
-    specificAddress
+    signerOrProvider,
+    specificAddress = null
 ) => {
     try {
-        // Validate inputs
-        if (!contractType) {
-            console.error("Missing contractType in createContractFromConfig");
+        // Get contract info
+        const { abi, address } = getContractInfo(contractType, chainId);
+
+        // Validate contract info
+        if (!abi) {
+            console.error(`ABI for contract type ${contractType} not found`);
             return null;
         }
 
-        if (!signer) {
-            console.error("Missing signer in createContractFromConfig");
-            return null;
-        }
+        // Use specificAddress if provided, otherwise use the configured address
+        const contractAddress = specificAddress || address;
 
-        // Get contract info including ABI and address
-        const contractInfo = getContractInfo(contractType, chainId);
-
-        if (!contractInfo) {
-            console.error(
-                "Failed to get contract info for type:",
-                contractType
-            );
-            return null;
-        }
-
-        // Use the specific address if provided, otherwise use the one from contract info
-        const contractAddress = specificAddress || contractInfo?.address;
-
-        console.log("Creating contract instance from config:", {
-            contractType,
-            chainId,
-            contractAddress,
-            contractConfig: contractInfo
-                ? {
-                      hasAbi: !!contractInfo.abi,
-                      abiLength: contractInfo.abi ? contractInfo.abi.length : 0,
-                  }
-                : "No config",
-        });
-
-        // Check if we have the necessary data
         if (!contractAddress) {
             console.error(
-                "Missing contract address for type:",
-                contractInfo,
-                "on chain:",
-                chainId
+                `Contract instance for ${contractType} was created, but address is missing`
             );
             return null;
         }
-
-        if (!contractInfo || !contractInfo.abi) {
-            console.error(
-                "Missing contract ABI in config for type:",
-                contractType
-            );
-            return null;
-        }
+        
+        console.log(`Creating contract instance for ${contractType} at address ${contractAddress}`);
 
         // Create contract instance
-        console.log("Creating contract with:", {
-            type: contractType,
-            address: contractAddress,
-            abiFirstItems: contractInfo.abi.slice(0, 2),
-        });
-
         const contract = new ethers.Contract(
             contractAddress,
-            contractInfo.abi,
-            signer
+            abi,
+            signerOrProvider
         );
 
-        console.log("Contract instance created successfully for", contractType);
+        // Verify the contract was created successfully
+        if (!contract || !contract.interface) {
+            console.error(
+                `Failed to create contract instance for ${contractType}`
+            );
+            return null;
+        }
+
+        console.log(`Contract ${contractType} created successfully with address ${contractAddress}`);
         return contract;
     } catch (error) {
-        console.error("Error creating contract instance:", error);
+        console.error(
+            `Error creating contract instance for ${contractType}:`,
+            error
+        );
         return null;
     }
 };

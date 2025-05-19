@@ -154,6 +154,33 @@
   display: inline-block;
 }
 
+.summary-value.token {
+  color: #8247e5;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.token-address {
+  font-family: monospace;
+  font-size: 0.8rem;
+  background: rgba(130, 71, 229, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.summary-value.network {
+  color: #00c3ff;
+  font-weight: bold;
+  background: rgba(0, 195, 255, 0.1);
+  padding: 3px 10px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
 .summary-value.amount {
   color: #3a7bd5;
   font-weight: bold;
@@ -258,6 +285,44 @@
   line-height: 1.5;
 }
 
+/* Approval status styles */
+.condition-approval-status {
+  margin: 10px 0;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  gap: 20px;
+}
+
+.approval-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.approval-label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.approval-value {
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.approval-value.approved {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+}
+
+.approval-value.pending {
+  background: rgba(243, 156, 18, 0.2);
+  color: #f39c12;
+}
+
 .advance-payment-tag {
   display: inline-block;
   background: rgba(58, 123, 213, 0.1);
@@ -276,7 +341,7 @@
   border-top: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-.approve-button, .reject-button {
+.approve-button {
   padding: 8px 15px;
   border: none;
   border-radius: 5px;
@@ -286,9 +351,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.approve-button {
   background-color: rgba(46, 204, 113, 0.8);
   color: white;
 }
@@ -297,21 +359,12 @@
   background-color: rgba(46, 204, 113, 1);
 }
 
-.reject-button {
-  background-color: rgba(231, 76, 60, 0.8);
-  color: white;
-}
-
-.reject-button:hover {
-  background-color: rgba(231, 76, 60, 1);
-}
-
-.approve-button:disabled, .reject-button:disabled {
+.approve-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.approve-button .icon, .reject-button .icon {
+.approve-button .icon {
   font-size: 1.1rem;
   font-weight: bold;
 }
@@ -388,6 +441,81 @@
   font-size: 1.5rem;
 }
 
+/* Deposit section styles */
+.deposit-section {
+  background-color: rgba(244, 176, 54, 0.1);
+  border: 1px solid rgba(244, 176, 54, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.deposit-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.deposit-message h3 {
+  color: #f39c12;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.deposit-message p {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10px;
+}
+
+.deposit-amount {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: white !important;
+}
+
+.deposit-button {
+  background-color: #f39c12;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px;
+  justify-content: center;
+}
+
+.deposit-button:hover {
+  background-color: #e67e22;
+}
+
+.deposit-button:disabled {
+  background-color: rgba(243, 156, 18, 0.5);
+  cursor: not-allowed;
+}
+
+.deposit-status {
+  display: flex;
+  justify-content: flex-start;
+  margin: 15px 0;
+}
+
+.status-badge.deposited {
+  background-color: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .summary-details {
@@ -404,7 +532,7 @@
     flex-direction: column;
   }
   
-  .approve-button, .reject-button {
+  .approve-button {
     width: 100%;
     justify-content: center;
   }

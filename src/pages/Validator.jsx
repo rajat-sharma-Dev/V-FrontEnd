@@ -7,7 +7,6 @@ import Navigation from '../components/Navigation';
 import StakingPoolInteract from '../components/StakingPoolInteract';
 import VoteOnDisputes from '../components/VoteOnDisputes';
 import RedeemRewards from '../components/RedeemRewards';
-import ViewContracts from '../components/ViewContracts';
 import '../components/StakingPoolInteract.css';
 import './Validator.css';
 
@@ -16,7 +15,6 @@ const Validator = () => {
   const [showStakingInteraction, setShowStakingInteraction] = useState(false);
   const [showVoteOnDisputes, setShowVoteOnDisputes] = useState(false);
   const [showRedeemRewards, setShowRedeemRewards] = useState(false);
-  const [showViewContracts, setShowViewContracts] = useState(false);
   const [cdtBalance, setCDTBalance] = useState('0');
   const [isLoading, setIsLoading] = useState(false);
   const [poolInfo, setPoolInfo] = useState({
@@ -84,7 +82,6 @@ const Validator = () => {
     setShowStakingInteraction(view === 'staking');
     setShowVoteOnDisputes(view === 'voting');
     setShowRedeemRewards(view === 'rewards');
-    setShowViewContracts(view === 'viewContracts');
   };
 
   return (
@@ -110,16 +107,6 @@ const Validator = () => {
             onBack={() => handleViewChange(null)}
             cdtBalance={cdtBalance}
           />
-        ) : showViewContracts ? (
-          <div className="view-contracts-wrapper">
-            <div className="section-header">
-              <button onClick={() => handleViewChange(null)} className="back-button">
-                &larr; Back
-              </button>
-              <h2>Disputed Contracts</h2>
-            </div>
-            <ViewContracts userRole="validator" />
-          </div>
         ) : (
           <>
             {/* Enhanced Staking Pool Stats Section */}
@@ -208,15 +195,6 @@ const Validator = () => {
                     <span className="button-icon">🗳️</span>
                     <span>Vote on Disputes</span>
                     <span className="button-description">Review and vote on disputed contracts</span>
-                  </button>
-                  
-                  <button 
-                    className="action-button view-button"
-                    onClick={() => handleViewChange('viewContracts')}
-                  >
-                    <span className="button-icon">👁️</span>
-                    <span>All Disputed Contracts</span>
-                    <span className="button-description">View all contracts with active disputes</span>
                   </button>
                   
                   <button 

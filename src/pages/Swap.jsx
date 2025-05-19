@@ -520,7 +520,8 @@ const Swap = () => {
               await stableTx.wait();
               txHash = stableTx.hash;
               break;
-            }            case SwapProtocol.AERODROME_V1_VOLATILE: {
+            }            
+            case SwapProtocol.AERODROME_V1_VOLATILE: {
               console.log("Swapping using Aerodrome V1 Volatile...");
               setTxStatus({ 
                 status: 'pending',
@@ -546,84 +547,95 @@ const Swap = () => {
               break;
             }
             
-          case SwapProtocol.AERODROME_V2: {
-            console.log("Swapping using Aerodrome V2...");
-            const v2Tx = await swapAggregator.swapUsingAerodromeV2(
-              fromAddress,
-              toAddress,
-              amountInWei,
-              account,
-              protocolParams.tickSpacing
-            );
-            await v2Tx.wait();
-            txHash = v2Tx.hash;
-            break;
-          }
-            
-          case SwapProtocol.UNISWAP_V2:
-          case SwapProtocol.UNISWAP_V3:
-          case SwapProtocol.UNISWAP_V4: {
-            let version = 2;
-            if (selectedProtocol === SwapProtocol.UNISWAP_V3) version = 3;
-            if (selectedProtocol === SwapProtocol.UNISWAP_V4) version = 4;
-            
-            console.log(`Swapping using Uniswap V${version}...`);
-            const uniTx = await swapAggregator.swapUsingUniswapUniversalRouter(
-              fromAddress,
-              toAddress,
-              amountInWei,
-              account,
-              protocolParams.poolFee || 3000, // Default to 0.3% if not available
-              protocolParams.tickSpacing || 0,
-              protocolParams.hook || '0x0000000000000000000000000000000000000000',
-              version
-            );
-            await uniTx.wait();
-            txHash = uniTx.hash;
-            break;
-          }
-            
-          default: {
-            // Fall back to regular swap contract if available
-            if (swapContract) {
-              console.log("Using fallback swap contract...");
-              // Handle based on whether the source token is native (ETH/MATIC) or ERC20
-              if (isNativeToken(fromToken, chainId)) {
-                // Swapping native token (ETH/MATIC) -> ERC20
-                console.log(`Swapping native ${fromToken} for ${toToken}...`);
-                
-                // In a real implementation, you would call your swap contract with value
-                // const swapTx = await swapContract.swapExactETHForTokens(
-                //   toAddress,
-                //   { value: amountInWei }
-                // );
-                // await swapTx.wait();
-              } else {
-                // Check allowance and approve if needed
-                const tokenContract = createTokenContract(fromToken, chainId, signer);
-                const allowance = await tokenContract.allowance(account, swapContract.target);
-                
-                if (allowance < amountInWei) {
-                  console.log("Approving token transfer to regular swap contract...");
-                  const approveTx = await tokenContract.approve(swapContract.target, amountInWei);
-                  await approveTx.wait();
-                }
-                
-                // Execute swap in regular contract (this is a mock)
-                console.log(`Swapping ${amount} ${fromToken} for ${toToken} using regular contract...`);
-              }
-            } else {
-              setError("No swap mechanism available");
-              setLoading(false);
-              return;
+            case SwapProtocol.AERODROME_V2: {
+              console.log("Swapping using Aerodrome V2...");
+              const v2Tx = await swapAggregator.swapUsingAerodromeV2(
+                fromAddress,
+                toAddress,
+                amountInWei,
+                account,
+                protocolParams.tickSpacing
+              );
+              await v2Tx.wait();
+              txHash = v2Tx.hash;
+              break;
             }
-            break;
+            
+            case SwapProtocol.UNISWAP_V2:
+            case SwapProtocol.UNISWAP_V3:
+            case SwapProtocol.UNISWAP_V4: {
+              let version = 2;
+              if (selectedProtocol === SwapProtocol.UNISWAP_V3) version = 3;
+              if (selectedProtocol === SwapProtocol.UNISWAP_V4) version = 4;
+              
+              console.log(`Swapping using Uniswap V${version}...`);
+              const uniTx = await swapAggregator.swapUsingUniswapUniversalRouter(
+                fromAddress,
+                toAddress,
+                amountInWei,
+                account,
+                protocolParams.poolFee || 3000, // Default to 0.3% if not available
+                protocolParams.tickSpacing || 0,
+                protocolParams.hook || '0x0000000000000000000000000000000000000000',
+                version
+              );
+              await uniTx.wait();
+              txHash = uniTx.hash;
+              break;
+            }
+            
+            default: {
+              // Fall back to regular swap contract if available
+              if (swapContract) {
+                console.log("Using fallback swap contract...");
+                // Handle based on whether the source token is native (ETH/MATIC) or ERC20
+                if (isNativeToken(fromToken, chainId)) {
+                  // Swapping native token (ETH/MATIC) -> ERC20
+                  console.log(`Swapping native ${fromToken} for ${toToken}...`);
+                  
+                  // In a real implementation, you would call your swap contract with value
+                  // const swapTx = await swapContract.swapExactETHForTokens(
+                  //   toAddress,
+                  //   { value: amountInWei }
+                  // );
+                  // await swapTx.wait();
+                } else {
+                  // Check allowance and approve if needed
+                  const tokenContract = createTokenContract(fromToken, chainId, signer);
+                  const allowance = await tokenContract.allowance(account, swapContract.target);
+                  
+                  if (allowance < amountInWei) {
+                    console.log("Approving token transfer to regular swap contract...");
+                    const approveTx = await tokenContract.approve(swapContract.target, amountInWei);
+                    await approveTx.wait();
+                  }
+                  
+                  // Execute swap in regular contract (this is a mock)
+                  console.log(`Swapping ${amount} ${fromToken} for ${toToken} using regular contract...`);
+                }
+              } else {
+                setError("No swap mechanism available");
+                setLoading(false);
+                return;
+              }
+              break;
+            }
           }
-        }
-        
-        console.log(`Swap completed: ${amount} ${fromToken} for ${estimatedReceived} ${toToken}`);
-        if (txHash) {
-          console.log(`Transaction hash: ${txHash}`);
+          
+          console.log(`Swap completed: ${amount} ${fromToken} for ${estimatedReceived} ${toToken}`);
+          if (txHash) {
+            console.log(`Transaction hash: ${txHash}`);
+          }
+        } catch (error) {
+          console.error("Swap failed:", error);
+          setTxStatus({
+            status: 'error',
+            message: `Swap failed: ${error.message || 'Unknown error'}`,
+            hash: ''
+          });
+          setError(`Swap failed: ${error.message || 'Unknown error'}`);
+          setLoading(false);
+          return;
         }
       } else if (swapContract) {
         // Fall back to regular swap contract

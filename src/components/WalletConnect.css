@@ -1,0 +1,252 @@
+/* WalletConnect.css - Wallet connection component styles */
+.wallet-connect-container {
+  position: relative;
+  display: inline-block;
+}
+
+.wallet-button {
+  background: #3498db;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.wallet-button:hover {
+  background: #2980b9;
+}
+
+.wallet-button.connected {
+  background: #2ecc71;
+  position: relative;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wallet-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.wallet-icon.coinbase {
+  background-image: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 40C31.0457 40 40 31.0457 40 20C40 8.9543 31.0457 0 20 0C8.9543 0 0 8.9543 0 20C0 31.0457 8.9543 40 20 40Z" fill="%23ffffff"/><path d="M20.0003 6.66669C12.6367 6.66669 6.66699 12.6367 6.66699 20.0001C6.66699 27.3634 12.6367 33.3334 20.0003 33.3334C27.3637 33.3334 33.3337 27.3634 33.3337 20.0001C33.3337 12.6367 27.3637 6.66669 20.0003 6.66669ZM15.4987 16.1817C15.4987 15.6067 15.9737 15.1384 16.5403 15.1384H23.4553C24.022 15.1384 24.497 15.6067 24.497 16.1817V23.8184C24.497 24.3934 24.022 24.8617 23.4553 24.8617H16.5403C15.9737 24.8617 15.4987 24.3934 15.4987 23.8184V16.1817Z" fill="%230052FF"/></svg>');
+}
+
+.wallet-icon.metamask {
+  background-image: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 35 33" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M33.0285 1L19.5473 10.8116L21.9141 5.0075L33.0285 1Z" fill="%23E17726" stroke="%23E17726" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.97131 1L15.3172 10.9153L13.0855 5.0075L1.97131 1Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M28.2891 23.5172L24.7855 28.8819L32.2631 30.9414L34.4422 23.6467L28.2891 23.5172Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.572754 23.6467L2.73734 30.9414L10.2149 28.8819L6.7114 23.5172L0.572754 23.6467Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.83467 14.4758L7.82812 17.6233L15.221 17.9338L14.9782 9.90723L9.83467 14.4758Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M25.1649 14.4761L19.9426 9.80469L19.5471 17.9342L26.9715 17.6236L25.1649 14.4761Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.2148 28.8818L14.7625 26.6955L10.8755 23.6982L10.2148 28.8818Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.2371 26.6955L24.7848 28.8818L24.124 23.6982L20.2371 26.6955Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+}
+
+.wallet-button:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.network-badge {
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 0.8em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-right: 5px;
+}
+
+.wallet-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 5px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 220px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0.5; }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.connecting-animation {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  border: 2px solid white;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: rotate 1s linear infinite;
+}
+
+.wallet-option {
+  display: block;
+  width: 100%;
+  padding: 12px 15px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.wallet-option:last-child {
+  border-bottom: none;
+}
+
+.wallet-option:hover {
+  background: #f8f9fa;
+}
+
+.wallet-option.coinbase {
+  position: relative;
+  padding-left: 40px;
+}
+
+.wallet-option.coinbase::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 40C31.0457 40 40 31.0457 40 20C40 8.9543 31.0457 0 20 0C8.9543 0 0 8.9543 0 20C0 31.0457 8.9543 40 20 40Z" fill="%230052FF"/><path d="M20.0003 6.66669C12.6367 6.66669 6.66699 12.6367 6.66699 20.0001C6.66699 27.3634 12.6367 33.3334 20.0003 33.3334C27.3637 33.3334 33.3337 27.3634 33.3337 20.0001C33.3337 12.6367 27.3637 6.66669 20.0003 6.66669ZM15.4987 16.1817C15.4987 15.6067 15.9737 15.1384 16.5403 15.1384H23.4553C24.022 15.1384 24.497 15.6067 24.497 16.1817V23.8184C24.497 24.3934 24.022 24.8617 23.4553 24.8617H16.5403C15.9737 24.8617 15.4987 24.3934 15.4987 23.8184V16.1817Z" fill="white"/></svg>') no-repeat center center;
+  background-size: contain;
+}
+
+.wallet-option.metamask {
+  position: relative;
+  padding-left: 40px;
+}
+
+.wallet-option.metamask::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 35 33" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M33.0285 1L19.5473 10.8116L21.9141 5.0075L33.0285 1Z" fill="%23E17726" stroke="%23E17726" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.97131 1L15.3172 10.9153L13.0855 5.0075L1.97131 1Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M28.2891 23.5172L24.7855 28.8819L32.2631 30.9414L34.4422 23.6467L28.2891 23.5172Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.572754 23.6467L2.73734 30.9414L10.2149 28.8819L6.7114 23.5172L0.572754 23.6467Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.83467 14.4758L7.82812 17.6233L15.221 17.9338L14.9782 9.90723L9.83467 14.4758Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M25.1649 14.4761L19.9426 9.80469L19.5471 17.9342L26.9715 17.6236L25.1649 14.4761Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.2148 28.8818L14.7625 26.6955L10.8755 23.6982L10.2148 28.8818Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.2371 26.6955L24.7848 28.8818L24.124 23.6982L20.2371 26.6955Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat center center;
+  background-size: contain;
+}
+
+/* Error message */
+.wallet-error {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  border: 1px solid #ffcdd2;
+  max-width: 300px;
+  animation: fadeIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.wallet-error .error-icon {
+  margin-right: 6px;
+  font-size: 1.1em;
+}
+
+.wallet-error .retry-button {
+  margin-left: auto;
+  padding: 4px 8px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.8em;
+  transition: background-color 0.2s;
+}
+
+.wallet-error .retry-button:hover {
+  background: #d32f2f;
+}
+
+/* Wallet info section */
+.wallet-info {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.wallet-info p {
+  margin: 8px 0;
+  font-size: 0.9em;
+  word-break: break-all;
+}
+
+.wallet-info .balance {
+  font-weight: bold;
+  color: #2ecc71;
+}
+
+.disconnect-button {
+  width: 100%;
+  padding: 10px 15px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 0 0 4px 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.disconnect-button:hover {
+  background: #c0392b;
+}
+
+/* Wallet type indicator */
+.wallet-info .wallet-type {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 0.85em;
+  color: #7f8c8d;
+  padding: 5px 0;
+}
+
+.wallet-info .wallet-type:before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.wallet-info .wallet-type.coinbase:before {
+  background-image: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 40C31.0457 40 40 31.0457 40 20C40 8.9543 31.0457 0 20 0C8.9543 0 0 8.9543 0 20C0 31.0457 8.9543 40 20 40Z" fill="%230052FF"/><path d="M20.0003 6.66669C12.6367 6.66669 6.66699 12.6367 6.66699 20.0001C6.66699 27.3634 12.6367 33.3334 20.0003 33.3334C27.3637 33.3334 33.3337 27.3634 33.3337 20.0001C33.3337 12.6367 27.3637 6.66669 20.0003 6.66669ZM15.4987 16.1817C15.4987 15.6067 15.9737 15.1384 16.5403 15.1384H23.4553C24.022 15.1384 24.497 15.6067 24.497 16.1817V23.8184C24.497 24.3934 24.022 24.8617 23.4553 24.8617H16.5403C15.9737 24.8617 15.4987 24.3934 15.4987 23.8184V16.1817Z" fill="white"/></svg>');
+}
+
+.wallet-info .wallet-type.metamask:before {
+  background-image: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 35 33" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M33.0285 1L19.5473 10.8116L21.9141 5.0075L33.0285 1Z" fill="%23E17726" stroke="%23E17726" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.97131 1L15.3172 10.9153L13.0855 5.0075L1.97131 1Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M28.2891 23.5172L24.7855 28.8819L32.2631 30.9414L34.4422 23.6467L28.2891 23.5172Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.572754 23.6467L2.73734 30.9414L10.2149 28.8819L6.7114 23.5172L0.572754 23.6467Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.83467 14.4758L7.82812 17.6233L15.221 17.9338L14.9782 9.90723L9.83467 14.4758Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M25.1649 14.4761L19.9426 9.80469L19.5471 17.9342L26.9715 17.6236L25.1649 14.4761Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.2148 28.8818L14.7625 26.6955L10.8755 23.6982L10.2148 28.8818Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.2371 26.6955L24.7848 28.8818L24.124 23.6982L20.2371 26.6955Z" fill="%23E27625" stroke="%23E27625" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+}
